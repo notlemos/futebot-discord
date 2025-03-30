@@ -374,7 +374,7 @@ async def artilheiros_command(interaction: discord.Interaction):
 
 
 @bot.tree.command(name='jogos', description='Mostra os ultimos e os próximos resultados do seu time!')
-async def jogos_command(interaction: discord.Interaction, time:str):
+async def jogos_command(interaction: discord.Interaction, time: str):
         await interaction.response.defer()
         
         jogos_data = get_jogos(time)
@@ -383,7 +383,7 @@ async def jogos_command(interaction: discord.Interaction, time:str):
         index = 0
         
         jogador = jogadores[index]
-        embed =  discord.Embed(title=f'⚔️ TABELA DE JOGOS DO {time.upper} ⚔️', description='')
+        embed =  discord.Embed(title=f'⚔️ Tabela de jogos do {time.capitalize()} ⚔️', description='')
         
         for row in  jogos_data:
             embed.add_field(
