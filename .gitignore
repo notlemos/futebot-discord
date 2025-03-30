@@ -129,6 +129,13 @@ celerybeat.pid
 
 # Environments
 .env
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+pyvenv.cfg
+>>>>>>> 7204e97 (FIRST COMMIT)
+>>>>>>> e7a33db (First Commit)
 .venv
 env/
 venv/
@@ -172,3 +179,13 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+data/
+a.py 
+teste.py
+database.db/
+>>>>>>> 7204e97 (FIRST COMMIT)
+>>>>>>> e7a33db (First Commit)
