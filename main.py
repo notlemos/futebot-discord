@@ -500,7 +500,22 @@ class FilmesView(discord.ui.View):
         dados = self.filmes[self.index]
         
         movie_id, filme, name, nota1, nota2 = dados
-        
+        def stars(nota):
+            nota = nota
+            
+            estrelas = ["<:intero:1355770128310075543> ", "<:meia:1355770368899551345>  "] # Stars emote // Full star and half star
+            
+            inteiro = int(nota) # Only the integer part 
+            
+            meia = int((inteiro - nota) * 2) # Getting de float part, if 0 == None, else += half star
+            
+            resultado = estrelas[0] * inteiro 
+            
+            if meia:
+                resultado += estrelas[1]
+            return resultado
+    
+    
         
         
         embed = discord.Embed(
@@ -509,7 +524,8 @@ class FilmesView(discord.ui.View):
             color= 534759
         )
         embed.add_field(name=f'{movie_id}️⃣   {filme.title()}', value=f'Escolhido por: {name}', inline=False)
-        embed.add_field(name=f"**Nota do Caio: {nota1}**", value=f"**Nota da Pamella: {nota2}**")
+        embed.add_field(name=f"**Nota do {os.getenv("NAME1")}:**", value=f"{stars(nota1)}", inline=False)
+        embed.add_field(name=f"**Nota da {os.getenv("NAME2")}:**", value=f"{stars(nota2)}", inline=False)
         
         url = f'https://image.tmdb.org/t/p/w600_and_h900_bestv2{get_items(filme)}'
         embed.set_image(url=url)
