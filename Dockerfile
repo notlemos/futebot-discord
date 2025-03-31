@@ -7,7 +7,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Só instala dependências se o arquivo existir
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt; pip install --upgrade pip
 
 COPY . .
 
