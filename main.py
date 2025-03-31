@@ -359,12 +359,6 @@ class ArtilheirosView(discord.ui.View):
 async def artilheiros_command(interaction: discord.Interaction):
     await interaction.response.defer()
     artilheiros = get_artilheiros()
-<<<<<<< HEAD
-=======
-    
-        
-        
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
     if not artilheiros:
         await interaction.followup.send("Não foi possivel obter os dados dos artilheiros.")
         return 
@@ -374,11 +368,8 @@ async def artilheiros_command(interaction: discord.Interaction):
     
     await interaction.followup.send(embed=embed, view=view)
 
-<<<<<<< HEAD
 # Command to see the last games and next games 
 
-=======
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
 
 @bot.tree.command(name='jogos', description='Mostra os ultimos e os próximos resultados do seu time!')
 async def jogos_command(interaction: discord.Interaction, time: str):
@@ -401,11 +392,7 @@ async def jogos_command(interaction: discord.Interaction, time: str):
         embed.set_thumbnail(url=f"{jogador['Escudo']}")
         await interaction.followup.send(embed=embed)
 
-<<<<<<< HEAD
 # Class made to set the embed and buttons to the Transfers Lists.
-=======
-# Classe de formatação do embed e dos botões
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
 
 class TransfersView(discord.ui.View):
     def __init__(self, transferencias,escudo):
@@ -448,11 +435,7 @@ class TransfersView(discord.ui.View):
         await interaction.response.edit_message(content="Mensagem Fechada! ", embed=None, view=None)
 
     
-<<<<<<< HEAD
 # Slash command to see your team transfers
-=======
-# Slash command para as transferências
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
     
     
 @bot.tree.command(name='transferencias', description='Mostra as ultimas transferências do seu time!')
@@ -470,11 +453,7 @@ async def transfers_command(interaction: discord.Interaction, time:str):
     
     await interaction.followup.send(embed=embed, view=view)
 
-<<<<<<< HEAD
 # Command to add filme on the list
-=======
-
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
 
 @bot.tree.command(description='Adicionar filmes a lista!')
 async def addmovie(interact:discord.Interaction, filme: str, nota1:float, nota2:float):
@@ -489,11 +468,7 @@ async def addmovie(interact:discord.Interaction, filme: str, nota1:float, nota2:
     save_dates(member, user_filme, user_nota1, user_nota2)
     await interact.response.send_message(f'{filme}, adicionado com sucesso!')
 
-<<<<<<< HEAD
 # Command to delete movies
-=======
-
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
 
 @bot.tree.command(description='Delete o filme da lista!')
 async def delmovie(interact:discord.Interaction, movie_id: int):
@@ -504,17 +479,11 @@ async def delmovie(interact:discord.Interaction, movie_id: int):
     delete_dates(movie_id)
     await interact.response.send_message(f'Filme com ID {movie_id} deletado')
 
-<<<<<<< HEAD
 
 # Class made to set the buttons and embed to the movies.
 
 
 class FilmesView(discord.ui.View):
-=======
-class FilmesView(discord.ui.View):
-    
-    
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
     def __init__(self):
         super().__init__(timeout=None)
         self.conn = sqlite3.connect("//app/data/database.sqlite")
@@ -531,7 +500,6 @@ class FilmesView(discord.ui.View):
         dados = self.filmes[self.index]
         
         movie_id, filme, name, nota1, nota2 = dados
-<<<<<<< HEAD
         def stars(nota):
             nota = nota
             
@@ -548,9 +516,6 @@ class FilmesView(discord.ui.View):
             return resultado
     
     
-=======
-        
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
         
         
         embed = discord.Embed(
@@ -559,20 +524,13 @@ class FilmesView(discord.ui.View):
             color= 534759
         )
         embed.add_field(name=f'{movie_id}️⃣   {filme.title()}', value=f'Escolhido por: {name}', inline=False)
-<<<<<<< HEAD
         embed.add_field(name=f"**Nota do {os.getenv("NAME1")}:**", value=f"{stars(nota1)}", inline=False)
-        embed.add_field(name=f"**Nota da {os.getenv("NAME2")}:**", value=f"{stars(nota2)}", inline=False)
-=======
-        embed.add_field(name=f"**Nota do Caio: {nota1}**", value=f"**Nota da Pamela: {nota2}**")
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
+        embed.add_field(name=f"**Nota da {os.getenv("NAME")}:**", value=f"{stars(nota2)}", inline=False)
         
         url = f'https://image.tmdb.org/t/p/w600_and_h900_bestv2{get_items(filme)}'
         embed.set_image(url=url)
         return embed
-<<<<<<< HEAD
     
-=======
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
     @discord.ui.button(label="Anterior", style=discord.ButtonStyle.grey)
     async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.index -= 1
@@ -590,11 +548,8 @@ class FilmesView(discord.ui.View):
     @discord.ui.button(label="Fechar", style=discord.ButtonStyle.grey)
     async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.edit_message(content="Mensagem Fechada!", embed=None, view=None)
-<<<<<<< HEAD
         
         
-=======
->>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
 @bot.tree.command(description='Liste os filmes da lista!')
 async def listmovies(interaction:discord.Interaction):
     conn = sqlite3.connect("//app/data/database.sqlite")
