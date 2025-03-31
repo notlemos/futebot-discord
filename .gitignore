@@ -138,9 +138,13 @@ pyvenv.cfg
 >>>>>>> e7a33db (First Commit)
 .venv
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 .env
 >>>>>>> f92e809 (initial commit)
+=======
+.env
+>>>>>>> f92e80997252bd39e5e5c27a54c0248a59ad0354
 env/
 venv/
 ENV/
