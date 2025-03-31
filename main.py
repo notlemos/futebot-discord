@@ -10,6 +10,7 @@ from discord import Spotify
 from dotenv import load_dotenv
 import os
 
+## TESTE
 
 # Chama a função para carregar o token
 load_dotenv()
