@@ -1,3 +1,9 @@
 discord.py
 bs4
+<<<<<<< HEAD
 requests
+=======
+requests
+python-dotenv
+dotenv
+>>>>>>> f92e809 (initial commit)

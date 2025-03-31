@@ -1,20 +1,19 @@
 from get_fute import get_standings,get_artilheiros, get_jogos, get_players, get_transfers
 from get_movies import get_items
+
 import sqlite3
+
 import discord
 from discord.ext import commands
 from discord import Spotify
 
-def carregar_token():
-    with open('.env', 'r') as f:
-        for line in f:
-            if line.startswith('DISCORD_TOKEN='):
-                return line.strip().split('=')[1]  # Retorna o token sem espaços extras
+from dotenv import load_dotenv
+import os
 
 
 # Chama a função para carregar o token
-TOKEN = carregar_token()
-
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.all() # Permissões do bot.
 bot = commands.Bot(command_prefix='%', intents=intents) # Prefixo do bot
@@ -23,16 +22,16 @@ bot = commands.Bot(command_prefix='%', intents=intents) # Prefixo do bot
 def create_db():
     conn = sqlite3.connect("/app/data/database.sqlite")
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS filmes (id INTEGER PRIMARY KEY, name TEXT, filme TEXT, nota TEXT)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS filmes (id INTEGER PRIMARY KEY, name TEXT, filme TEXT, nota1 FLOAT, nota2 FLOAT)''')
     
     conn.commit()
     conn.close()
 
-def save_dates(member, user_filme, user_nota):
+def save_dates(member, user_filme, user_nota1, user_nota2):
     conn = sqlite3.connect("/app/data/database.sqlite")
     cursor = conn.cursor()
     user_name = member.name
-    cursor.execute("INSERT OR IGNORE INTO filmes (name, filme, nota) VALUES (?, ?, ?)", (user_name, user_filme, user_nota))
+    cursor.execute("INSERT OR IGNORE INTO filmes (name, filme, nota1, nota2) VALUES (?, ?, ?,?)", (user_name, user_filme, user_nota1, user_nota2))
     conn.commit()
     conn.close()
 
@@ -43,11 +42,11 @@ def delete_dates(movie_id: int):
     cursor.execute("DELETE FROM filmes WHERE id = ?", (movie_id,))
     conn.commit()
     
-    cursor.execute("""CREATE TEMP TABLE temp_filmes AS SELECT ROW_NUMBER() OVER () AS new_id, filme, name, nota FROM filmes ORDER BY id ASC;""")
+    cursor.execute("""CREATE TEMP TABLE temp_filmes AS SELECT ROW_NUMBER() OVER () AS new_id, filme, name, nota1, nota2 FROM filmes ORDER BY id ASC;""")
     
     cursor.execute("DELETE FROM filmes")
     
-    cursor.execute("INSERT INTO filmes (id, filme, name, nota) SELECT new_id, filme, name, nota FROM temp_filmes ")
+    cursor.execute("INSERT INTO filmes (id, filme, name, nota1, nota2) SELECT new_id, filme, name, nota1, nota2 FROM temp_filmes ")
     
     conn.commit()
     conn.close()
@@ -458,14 +457,16 @@ async def transfers_command(interaction: discord.Interaction, time:str):
 
 
 @bot.tree.command(description='Adicionar filmes a lista!')
-async def addmovie(interact:discord.Interaction, filme: str, nota:str):
+async def addmovie(interact:discord.Interaction, filme: str, nota1:float, nota2:float):
     if interact.guild.id != allowed_guild_id:
         await interact.response.send_message("Este comando não está disponível neste servidor.", ephemeral=True)
         return
     
     member = interact.user
     user_filme = filme
-    save_dates(member, user_filme)
+    user_nota1 = nota1 
+    user_nota2 = nota2
+    save_dates(member, user_filme, user_nota1, user_nota2)
     await interact.response.send_message(f'{filme}, adicionado com sucesso!')
 
 
@@ -486,7 +487,7 @@ class FilmesView(discord.ui.View):
         super().__init__(timeout=None)
         self.conn = sqlite3.connect("//app/data/database.sqlite")
         self.cursor = self.conn.cursor()
-        self.cursor.execute("SELECT id, filme, name FROM filmes")
+        self.cursor.execute("SELECT id, filme, name, nota1, nota2 FROM filmes")
         self.filmes = self.cursor.fetchall()
         self.conn.close()
         self.index = 0
@@ -497,7 +498,7 @@ class FilmesView(discord.ui.View):
         
         dados = self.filmes[self.index]
         
-        movie_id, filme, name = dados
+        movie_id, filme, name, nota1, nota2 = dados
         
         
         
@@ -506,7 +507,8 @@ class FilmesView(discord.ui.View):
             description='',
             color= 534759
         )
-        embed.add_field(name=f'{movie_id}️⃣   {filme.title()}      -     {name}ㅤ', value=f'__________________________', inline=False)
+        embed.add_field(name=f'{movie_id}️⃣   {filme.title()}', value=f'Escolhido por: {name}', inline=False)
+        embed.add_field(name=f"**Nota do Caio: {nota1}", value=f"**Nota da Pamela: {nota2}**")
         
         url = f'https://image.tmdb.org/t/p/w600_and_h900_bestv2{get_items(filme)}'
         embed.set_image(url=url)
@@ -532,7 +534,7 @@ class FilmesView(discord.ui.View):
 async def listmovies(interaction:discord.Interaction):
     conn = sqlite3.connect("//app/data/database.sqlite")
     cursor = conn.cursor()
-    cursor.execute("SELECT id, filme, name FROM filmes")
+    cursor.execute("SELECT id, filme, name, nota1, nota2 FROM filmes")
     filmes = cursor.fetchall()
     conn.close()
     
