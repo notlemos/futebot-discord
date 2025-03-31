@@ -1,0 +1,13 @@
+
+
+services:
+  main:
+    container_name: santos-main-1
+    
+    build: .
+    volumes:
+      - ./data:/app/data  # Mapeia o banco de dados para persistência
+    working_dir: /app 
+    env_file:
+      - .env 
+    
