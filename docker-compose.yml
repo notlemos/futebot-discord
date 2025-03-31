@@ -2,7 +2,7 @@
 
 services:
   main:
-    container_name: santos-main-1
+    container_name: futebot-python
     
     build: .
     volumes:
