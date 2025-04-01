@@ -3,6 +3,8 @@ from get_movies import get_items
 
 import sqlite3
 
+import asyncio
+
 import discord
 from discord.ext import commands
 from discord import Spotify
@@ -12,12 +14,17 @@ import os
 
 ## TESTE
 
+
+
 # Chama a função para carregar o token
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.all() # Permissões do bot.
 bot = commands.Bot(command_prefix='%', intents=intents) # Prefixo do bot
+
+
+
 
 
 def create_db():
@@ -62,6 +69,7 @@ async def on_ready():
         print(f'Logged on {bot.user}')
         
         create_db()
+        await asyncio.sleep(10)
 
 async def a():
     for guild in bot.fetch_guilds(limit=150):
@@ -526,7 +534,7 @@ class FilmesView(discord.ui.View):
         )
         embed.add_field(name=f'{movie_id}️⃣   {filme.title()}', value=f'Escolhido por: {name}', inline=False)
         embed.add_field(name=f"**Nota do {os.getenv("NAME1")}:**", value=f"{stars(nota1)}", inline=False)
-        embed.add_field(name=f"**Nota da {os.getenv("NAME")}:**", value=f"{stars(nota2)}", inline=False)
+        embed.add_field(name=f"**Nota da {os.getenv("NAME2")}:**", value=f"{stars(nota2)}", inline=False)
         
         url = f'https://image.tmdb.org/t/p/w600_and_h900_bestv2{get_items(filme)}'
         embed.set_image(url=url)
@@ -571,6 +579,7 @@ async def listmovies(interaction:discord.Interaction):
     
     
 
-
-
+@bot.command()
+async def listguilds(ctx):
+    await ctx.send(bot.guilds)
 bot.run(TOKEN) 

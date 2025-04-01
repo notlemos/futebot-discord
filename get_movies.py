@@ -25,5 +25,3 @@ def get_items(name):
     movie_poster = filme["results"][0]['poster_path']
     
     return movie_poster
-
-print(get_items('16 desejos'))

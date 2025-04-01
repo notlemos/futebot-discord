@@ -212,7 +212,7 @@ def get_transfers(time):
         'cruzeiro': 'https://onefootball.com/pt-br/time/cruzeiro-1794/transferencias',
         'fluminense': 'https://onefootball.com/pt-br/time/fluminense-1666/transferencias',
         'vasco': 'https://onefootball.com/pt-br/time/vasco-da-gama-1790/transferencias',
-        'sao paulo': 'https://onefootball.com/pt-br/time/sao-paulo-1677/transferencias',
+        'sao-paulo': 'https://onefootball.com/pt-br/time/sao-paulo-1677/transferencias',
         'sport': 'https://onefootball.com/pt-br/time/sport-recife-1797/transferencias',
         'bragantino': 'https://onefootball.com/pt-br/time/rb-bragantino-4734/transferencias',
         'vitoria': 'https://onefootball.com/pt-br/time/vitoria-1861/transferencias'
