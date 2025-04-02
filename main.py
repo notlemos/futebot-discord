@@ -503,12 +503,10 @@ class FilmesView(discord.ui.View):
         self.index = 0
     
     def format_embed(self):
-        
-        
-        
         dados = self.filmes[self.index]
         
         movie_id, filme, name, nota1, nota2 = dados
+        
         def stars(nota):
             nota = nota
             
@@ -523,9 +521,6 @@ class FilmesView(discord.ui.View):
             if meia:
                 resultado += estrelas[1]
             return resultado
-    
-    
-        
         
         embed = discord.Embed(
             title='🎥  LISTA DE FILMES ',

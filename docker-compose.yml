@@ -1,5 +1,3 @@
-
-
 services:
   main:
     container_name: futebot-python
