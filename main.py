@@ -537,7 +537,7 @@ class FilmesView(discord.ui.View):
         embed.add_field(name=f"**Nota da {os.getenv("NAME2")}:**", value=f"{stars(nota2)}", inline=False)
         
         url = f'https://image.tmdb.org/t/p/w600_and_h900_bestv2{get_items(filme)}'
-        embed.set_image(url=url)
+        embed.set_thumbnail(url=url)
         return embed
     
     @discord.ui.button(label="Anterior", style=discord.ButtonStyle.grey)
