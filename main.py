@@ -1,6 +1,6 @@
 from get_fute import get_standings,get_artilheiros, get_jogos, get_players, get_transfers
 from get_movies import get_items
-
+from weather import weatherdata
 import sqlite3
 
 import asyncio
@@ -572,8 +572,22 @@ async def listmovies(interaction:discord.Interaction):
     embed = view.format_embed()
     await interaction.response.send_message(embed=embed, view=view)
     
+@bot.command()
+async def weather(ctx, *,city:str):
+    flag, temp, tempmin, tempmax, humidity, name, cod = weatherdata(city)
+    embed = discord.Embed(
+        title=f'{name} ',
+        description='',
+        color=0x93B7C3
+    )
+    embed.add_field(name=f'Temperatura Atual:', value=f'{temp:.1f}°C', inline=True)
+    embed.add_field(name='Máxima: ', value=f'{tempmax:.1f}°C', inline=True)
+    embed.add_field(name='Mínima:', value=f'{tempmin:.1f}°C', inline=True)
+    embed.add_field(name=f'Umidade:', value=f'{humidity}%', inline=True)
+    embed.set_footer(icon_url=flag, text=f'{cod}')
+    embed.set_thumbnail(url='https://em-content.zobj.net/source/apple/391/cloud_2601-fe0f.png')
+    await ctx.send(embed=embed)
     
-
 @bot.command()
 async def listguilds(ctx):
     await ctx.send(bot.guilds)
