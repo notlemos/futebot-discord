@@ -7,8 +7,6 @@ load_dotenv()
 apiWeatherKey= os.getenv("apiWeatherKey")
 
 
-
-
 def date(endpoint):
 
     url = f'https://api.openweathermap.org/data/2.5/weather?q={endpoint}&units=metric&APPID={apiWeatherKey}' 
@@ -19,10 +17,7 @@ def date(endpoint):
     response = requests.get(url, headers=headers)
         
     resposta = response.json()
-    
-    
     return resposta
-
 
 def weatherdata(city):
     
