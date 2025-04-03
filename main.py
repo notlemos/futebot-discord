@@ -217,6 +217,18 @@ async def avatar(ctx, user: discord.Member = None):
     await ctx.send(file=file)
 
 
+@bot.command()
+async def banner(ctx, user: discord.Member = None):
+    user = user or ctx.author
+    user = await bot.fetch_user(user.id)
+    
+    if not user.banner:
+        await ctx.send(f'{user.name} não possui banner.')
+        return
+    banner = user.banner.url
+    
+    await ctx.send(banner)
+
 
 # COMANDO SPOTIFY RETORNA OS DADOS DA MUSICA QUE ESTA SENDO OUVIDA PELO USUARIO
 
