@@ -17,19 +17,19 @@ def date(endpoint):
     response = requests.get(url, headers=headers)
         
     resposta = response.json()
+    
     return resposta
 
-def weatherdata(city):
+def weatherdata(cidade):
     
-    all = date(city)
+    all = date(cidade)
     flag = f'https://flagsapi.com/{all['sys']['country']}/flat/64.png' 
     temp = all['main']['temp']
-    tempmin = all['main']['temp_min']
-    tempmax = all['main']['temp_max']
+    sens = all['main']['feels_like']
     humidity = all['main']['humidity']
     name = all['name']
     cod = all['sys']['country'] 
     
-    return flag, temp, tempmin, tempmax, humidity, name, cod
+    return flag, temp, sens, humidity, name, cod
 
 

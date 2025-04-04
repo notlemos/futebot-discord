@@ -5,6 +5,8 @@ import sqlite3
 
 import asyncio
 
+import requests
+
 import discord
 from discord.ext import commands
 from discord import Spotify
@@ -225,9 +227,10 @@ async def banner(ctx, user: discord.Member = None):
     if not user.banner:
         await ctx.send(f'{user.name} não possui banner.')
         return
-    banner = user.banner.url
+    banner = user.banner
+    file = await banner.with_size(1024).to_file()
     
-    await ctx.send(banner)
+    await ctx.send(file=file)
 
 
 # COMANDO SPOTIFY RETORNA OS DADOS DA MUSICA QUE ESTA SENDO OUVIDA PELO USUARIO
@@ -586,20 +589,28 @@ async def listmovies(interaction:discord.Interaction):
     
 @bot.command()
 async def weather(ctx, *,city:str):
-    flag, temp, tempmin, tempmax, humidity, name, cod = weatherdata(city)
+    flag, temp, sens, humidity, name, cod = weatherdata(city)
     embed = discord.Embed(
         title=f'{name} ',
         description='',
         color=0x93B7C3
     )
     embed.add_field(name=f'Temperatura Atual:', value=f'{temp:.1f}°C', inline=True)
-    embed.add_field(name='Máxima: ', value=f'{tempmax:.1f}°C', inline=True)
-    embed.add_field(name='Mínima:', value=f'{tempmin:.1f}°C', inline=True)
+    embed.add_field(name='Sensação: ', value=f'{sens:.1f}°C', inline=True)
     embed.add_field(name=f'Umidade:', value=f'{humidity}%', inline=True)
     embed.set_footer(icon_url=flag, text=f'{cod}')
     embed.set_thumbnail(url='https://em-content.zobj.net/source/apple/391/cloud_2601-fe0f.png')
     await ctx.send(embed=embed)
-    
+
+
+@bot.command()
+async def cafe(ctx):
+    url = f'https://coffee.alexflipnote.dev/random.json'
+    response = requests.get(url)
+    resposta = response.json()
+    img = resposta['file']
+    await ctx.send(img)
+
 @bot.command()
 async def listguilds(ctx):
     await ctx.send(bot.guilds)
