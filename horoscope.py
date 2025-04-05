@@ -28,8 +28,6 @@ def horoscope_data(sign):
     else:
         msg = 'Signo digitado incorretamente.'
         return msg
-        
 
-teste = horoscope_data('aquario')
     
     
