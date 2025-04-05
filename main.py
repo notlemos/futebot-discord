@@ -1,6 +1,8 @@
 from get_fute import get_standings,get_artilheiros, get_jogos, get_players, get_transfers
 from get_movies import get_items
 from weather import weatherdata
+from horoscope import horoscope_data
+
 import sqlite3
 
 import asyncio
@@ -610,6 +612,13 @@ async def cafe(ctx):
     resposta = response.json()
     img = resposta['file']
     await ctx.send(img)
+    
+@bot.tree.command(description='Horóscopo do dia!' )
+async def horoscopo(interaction: discord.Interaction, signo: str):
+    horoscopo, data = horoscope_data(signo)
+    
+    await interaction.response.send_message(f'**Horóscopo do Signo {signo.title()} - {data}**\n\n {horoscopo[6:]}')
+    
 
 @bot.command()
 async def listguilds(ctx):
