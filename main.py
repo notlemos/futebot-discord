@@ -2,7 +2,7 @@ from get_fute import get_standings,get_artilheiros, get_jogos, get_players, get_
 from get_movies import get_items
 from weather import weatherdata
 from horoscope import horoscope_data
-
+import datetime
 import sqlite3
 
 import asyncio
@@ -261,17 +261,17 @@ async def spotify(ctx, user: discord.Member = None):
                 )
             embed.set_thumbnail(url=activity.album_cover_url)
             embed.add_field(
-                name=f'Music Name  ',
+                name=f'Music   ',
                 value=f'{activity.title}',
                 inline=True
             )
             embed.add_field(
-                name=f'Artist Name  ',
+                name=f'Artist   ',
                 value=f'{activity.artist}',
                 inline=True
             )
             embed.add_field(
-                name=f'Album Name  ',
+                name=f'Album   ',
                 value=f'{activity.album}',
                 inline=True
             )
@@ -567,10 +567,11 @@ class FilmesView(discord.ui.View):
         embed = self.format_embed()
         await interaction.response.edit_message(embed=embed, view=self)
     @discord.ui.button(label="Fechar", style=discord.ButtonStyle.grey)
+    
     async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.edit_message(content="Mensagem Fechada!", embed=None, view=None)
         
-        
+
 @bot.tree.command(description='Liste os filmes da lista!')
 async def listmovies(interaction:discord.Interaction):
     conn = sqlite3.connect("//app/data/database.sqlite")
@@ -615,10 +616,25 @@ async def cafe(ctx):
     
 @bot.tree.command(description='Horóscopo do dia!' )
 async def horoscopo(interaction: discord.Interaction, signo: str):
-    horoscopo, data = horoscope_data(signo)
+    horoscopo = horoscope_data(signo)
+    if horoscopo:
+        
+        data_atual = datetime.datetime.now()
+        data_formated = data_atual.strftime("%d/%m/%Y")
+        await interaction.response.send_message(f'**Horóscopo do Signo {signo.title()} - {data_formated}**\n\n {horoscopo[6:]}')
+    else:
+        await interaction.response.send_message(f'SIGNO {signo} NAO EXISTE')
+        return
     
-    await interaction.response.send_message(f'**Horóscopo do Signo {signo.title()} - {data}**\n\n {horoscopo[6:]}')
+@bot.command()
+async def gato(ctx):
+    url =f'https://api.thecatapi.com/v1/images/search'
+    response = requests.get(url)   
+    resposta = response.json()
+
+    link = resposta[0]['url']
     
+    await ctx.send(link)
 
 @bot.command()
 async def listguilds(ctx):

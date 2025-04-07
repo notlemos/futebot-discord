@@ -23,5 +23,7 @@ def get_items(name):
 
     #movie_id = filme["results"][0]['id']
     movie_poster = filme["results"][0]['poster_path']
-    
+   # print(filme['results'][0])
     return movie_poster
+
+
