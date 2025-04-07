@@ -1,7 +1,8 @@
 from scraping.get_fute import get_standings,get_artilheiros, get_jogos, get_players, get_transfers
-from get_movies import get_items
-from weather import weatherdata, date
-from horoscope import horoscope_data
+from apicalls.get_movies import get_items
+from apicalls.weather import weatherdata, date
+from scraping.horoscope import horoscope_data
+from apicalls.groqAPI import groqFut, groqPop
 import datetime
 import sqlite3
 
@@ -13,14 +14,14 @@ import discord
 from discord.ext import commands
 from discord import Spotify
 
-from dotenv import load_dotenv
+
 import os
 
 
 
 
 # Chama a função para carregar o token
-load_dotenv()
+
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.all() # Permissões do bot.
@@ -637,6 +638,17 @@ async def gato(ctx):
     link = resposta[0]['url']
     
     await ctx.send(link)
+
+@bot.command()
+async def explique(ctx,*, msg: str):
+    resposta = groqFut(msg)
+    await ctx.send(resposta)
+    
+@bot.command()
+async def expliquepop(ctx, *, msg: str):
+    resposta = groqPop(msg)
+    
+    await ctx.send(resposta)
 
 @bot.command()
 async def listguilds(ctx):

@@ -1,8 +1,6 @@
 import requests 
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
 
 APITOKEN = os.getenv("TMBD_TOKEN")
 def fetch_data(endpoint, filters={}):

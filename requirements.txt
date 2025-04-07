@@ -1,6 +1,4 @@
 discord.py
 bs4
 requests
-dotenv
-python-dotenv
 groq
