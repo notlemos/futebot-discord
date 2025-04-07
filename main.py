@@ -1,6 +1,6 @@
-from get_fute import get_standings,get_artilheiros, get_jogos, get_players, get_transfers
+from scraping.get_fute import get_standings,get_artilheiros, get_jogos, get_players, get_transfers
 from get_movies import get_items
-from weather import weatherdata
+from weather import weatherdata, date
 from horoscope import horoscope_data
 import datetime
 import sqlite3
@@ -16,7 +16,6 @@ from discord import Spotify
 from dotenv import load_dotenv
 import os
 
-## TESTE
 
 
 
@@ -592,18 +591,21 @@ async def listmovies(interaction:discord.Interaction):
     
 @bot.command()
 async def weather(ctx, *,city:str):
-    flag, temp, sens, humidity, name, cod = weatherdata(city)
-    embed = discord.Embed(
-        title=f'{name} ',
-        description='',
-        color=0x93B7C3
-    )
-    embed.add_field(name=f'Temperatura Atual:', value=f'{temp:.1f}°C', inline=True)
-    embed.add_field(name='Sensação: ', value=f'{sens:.1f}°C', inline=True)
-    embed.add_field(name=f'Umidade:', value=f'{humidity}%', inline=True)
-    embed.set_footer(icon_url=flag, text=f'{cod}')
-    embed.set_thumbnail(url='https://em-content.zobj.net/source/apple/391/cloud_2601-fe0f.png')
-    await ctx.send(embed=embed)
+    if date(city):
+        flag, temp, sens, humidity, name, cod = weatherdata(city)
+        embed = discord.Embed(
+            title=f'{name} ',
+            description='',
+            color=0x93B7C3
+        )
+        embed.add_field(name=f'Temperatura Atual:', value=f'{temp:.1f}°C', inline=True)
+        embed.add_field(name='Sensação: ', value=f'{sens:.1f}°C', inline=True)
+        embed.add_field(name=f'Umidade:', value=f'{humidity}%', inline=True)
+        embed.set_footer(icon_url=flag, text=f'{cod}')
+        embed.set_thumbnail(url='https://em-content.zobj.net/source/apple/391/cloud_2601-fe0f.png')
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send(f'A cidade {city.title()} não foi encontrada.')
 
 
 @bot.command()

@@ -15,10 +15,14 @@ def date(endpoint):
         }
 
     response = requests.get(url, headers=headers)
-        
-    resposta = response.json()
     
-    return resposta
+    if response.status_code == 200:
+
+        resposta = response.json()
+        
+        return resposta
+    else:
+        return None
 
 def weatherdata(cidade):
     
