@@ -115,7 +115,8 @@ def get_players(time):
                             
                         })
         return jogadores
-
+    else:
+        return None
 
 
 def get_artilheiros():

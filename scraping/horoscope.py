@@ -5,7 +5,7 @@ import unicodedata
 def horoscope_data(sign):
     
     signo_formated = ''.join(
-        c for c in unicodedata.normalize('NFD', sign)
+        c for c in unicodedata.normalize('NFD', sign.lower())
         if unicodedata.category(c) != 'Mn'
     )
     

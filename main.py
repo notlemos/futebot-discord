@@ -3,6 +3,7 @@ from apicalls.get_movies import get_items
 from apicalls.weather import weatherdata, date
 from scraping.horoscope import horoscope_data
 from apicalls.groqAPI import groqFut, groqPop
+from apicalls.servermine import serverOn
 import datetime
 import sqlite3
 
@@ -19,6 +20,7 @@ import os
 
 
 
+   
 
 # Chama a função para carregar o token
 
@@ -26,8 +28,6 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.all() # Permissões do bot.
 bot = commands.Bot(command_prefix='%', intents=intents) # Prefixo do bot
-
-
 
 
 
@@ -69,9 +69,13 @@ allowed_guild_id = 928519278188167208
 
 @bot.event 
 async def on_ready():
+    guilds = []
+    async for guild in bot.fetch_guilds():
+        guilds.append(guild )
+
         #await bot.tree.sync()
         print(f'Logged on {bot.user}')
-        
+    for g in guilds:
         create_db()
         await asyncio.sleep(10)
 
@@ -186,11 +190,17 @@ async def sp(ctx):
 @bot.command()
 async def jogos(ctx, time):
     jogos_data = get_jogos(time)
-    jogadores = get_players(time)
-    jogadores = jogadores 
-    index = 0
+    if jogos_data is None:
+        await ctx.send('digito errado animal de teta')
+        return
     
-    jogador = jogadores[index]
+    jogadores = get_players(time)
+    if not jogadores:
+        await ctx.send("Escreveu errado o time imbecil.")
+        return
+    
+    
+    jogador = jogadores[0]
     embed = discord.Embed(
         title=f'⚔️ Ultimos jogos do {time.capitalize()} ⚔️',
         description='ultimos resultados e próximos jogos',
@@ -198,7 +208,7 @@ async def jogos(ctx, time):
     )
     for row in jogos_data:
         embed.add_field(
-            name=f'{row['TeamHome']} {row['Result']} {row['AwayTeam']}',
+            name=f"{row['TeamHome']} {row['Result']} {row['AwayTeam']}",
             value=f'{row['Data']}',
             inline=False
         )
@@ -649,6 +659,21 @@ async def expliquepop(ctx, *, msg: str):
     resposta = groqPop(msg)
     
     await ctx.send(resposta)
+    
+@bot.command()
+async def server(ctx):    
+    status, playerslist, playersnome = serverOn()
+
+    if status == True:
+    
+        statusMsg = "Online" 
+        playersFormated = [nome for nome in playersnome]    
+        
+        playersFormated_str = ", ".join(playersFormated)
+        await ctx.send(f"Status: {statusMsg} \n\nPlayers Onlines: {playerslist} \n\nNomes: {playersFormated_str}")
+    else:
+        statusMsg = 'Offline'
+        await ctx.send(f'Status: {statusMsg}')
 
 @bot.command()
 async def listguilds(ctx):
