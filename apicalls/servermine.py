@@ -3,36 +3,32 @@ import os
 IP = os.getenv("IpServer")
 
 def serverOn():
-    url = f"https://api.mcsrvstat.us/3/{IP}"
+    url = f"https://mcapi.us/server/status?ip={IP}"
     headers = {
             "accept": "application/json",
             }
 
     response = requests.get(url, headers=headers)
     resposta = response.json()
-    
+    print(resposta)
     if response.status_code == 200: 
         
         
         status = resposta['online']
         
         if status == True:
-            
-            playerList = resposta['players']['online']
+            playerList = resposta['players']['now']
+            print(playerList)
             if playerList > 0:
-                playersNomes = resposta['players']['list']
                 players = []
-                
-                for player in playersNomes:
-                    players.append(player['name'])
-                
+                for i in range(playerList):
+                    playersNomes = resposta['players']['sample'][i]['name']
+                    players.append(playersNomes)
                 return status, playerList, players
             else:
-                   
-                
-                return status, playerList, None
-                   
+                return status, playerList, None     
         else:
             return status, None, None
+
     
 

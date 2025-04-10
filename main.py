@@ -2,7 +2,7 @@ from scraping.get_fute import get_standings,get_artilheiros, get_jogos, get_play
 from apicalls.get_movies import get_items
 from apicalls.weather import weatherdata, date
 from scraping.horoscope import horoscope_data
-from apicalls.groqAPI import groqFut, groqPop
+from apicalls.groqAPI import groqFut, groqPop, groqVar
 from apicalls.servermine import serverOn
 import datetime
 import sqlite3
@@ -667,13 +667,37 @@ async def server(ctx):
     if status == True:
     
         statusMsg = "Online" 
-        playersFormated = [nome for nome in playersnome]    
+        if playersnome:
+            playersFormated = [nome for nome in playersnome]    
         
-        playersFormated_str = ", ".join(playersFormated)
-        await ctx.send(f"Status: {statusMsg} \n\nPlayers Onlines: {playerslist} \n\nNomes: {playersFormated_str}")
+            playersFormated_str = ", ".join(playersFormated)
+            await ctx.send(f"Status: {statusMsg} \n\nPlayers Onlines: {playerslist} \n\nNomes: {playersFormated_str}")
+            return
+        await ctx.send(f"Status: {statusMsg} \n\nPlayers Onlines: {playerslist}")
+        
     else:
         statusMsg = 'Offline'
         await ctx.send(f'Status: {statusMsg}')
+
+@bot.command()
+@commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
+async def var(ctx):
+    
+    messages = [message async for message in ctx.channel.history(limit=20)]
+    contents = [f"**{message.author.display_name}**: {message.content}" for message in reversed(messages)]
+
+    varCheck = groqVar(contents)
+
+    await ctx.send(varCheck)
+
+
+@var.error
+async def var_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        retry_after = round(error.retry_after)
+        
+        await ctx.send(f'Comando em cooldown. tente novamente em: {retry_after} s')
+
 
 @bot.command()
 async def listguilds(ctx):

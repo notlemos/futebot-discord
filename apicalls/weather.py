@@ -1,8 +1,6 @@
 import requests
 import os
 
-
-
 apiWeatherKey= os.getenv("apiWeatherKey")
 
 
@@ -18,11 +16,11 @@ def date(endpoint):
     if response.status_code == 200:
 
         resposta = response.json()
-        print(resposta)
+        
         return resposta
     else:
         return None
-date('franca')
+
 def weatherdata(cidade):
     
     all = date(cidade)
