@@ -1,9 +1,10 @@
-from scraping.get_fute import get_standings,get_artilheiros, get_jogos, get_players, get_transfers
+from scraping.get_fute import get_artilheiros, get_jogos, get_players, get_transfers, get_tabela
 from apicalls.get_movies import get_items
 from apicalls.weather import weatherdata, date
 from scraping.horoscope import horoscope_data
-from apicalls.groqAPI import groqFut, groqPop, groqVar
+from apicalls.groqAPI import groqFut, groqPop, groqVar, groqResenhemetro
 from apicalls.servermine import serverOn
+from apicalls.woah import baixar_woah
 import datetime
 import sqlite3
 
@@ -17,6 +18,7 @@ from discord import Spotify
 
 
 import os
+import shutil
 
 
 
@@ -69,12 +71,13 @@ allowed_guild_id = 928519278188167208
 
 @bot.event 
 async def on_ready():
+    await bot.tree.sync()
     guilds = []
     async for guild in bot.fetch_guilds():
         guilds.append(guild )
 
         #await bot.tree.sync()
-        print(f'Logged on {bot.user}')
+    print(f'Logged on {bot.user}')
     for g in guilds:
         create_db()
         await asyncio.sleep(10)
@@ -82,65 +85,12 @@ async def on_ready():
 async def a():
     for guild in bot.fetch_guilds(limit=150):
         print(guild.name)                  
-print(a)
-# Comando para sincronizar os slash commands.        
 
-@bot.command()
-async def test(ctx):
-    await ctx.send('testadooo 23 ')        
-
-@bot.command()
-async def davigay(ctx):
-    await ctx.send('davi é gay.')        
-        
-@bot.command()
-async def sincronizar(ctx:commands.Context):
-    if ctx.author.id == 364874163455787028:
-        sincs = await bot.tree.sync()
-        await ctx.reply(f"{len(sincs)} comandos sincronizados")
-    else:
-        await ctx.reply("no.")
 
 @bot.tree.command(description='Responde o usuário com olá')
 async def ola(interact:discord.Interaction):
     await interact.response.send_message(f'Olá, {interact.user.name}')
 
-
-# Comando que retorna a tabela do paulista. (+ command)  
-  
-  
-@bot.command()
-async def tabela (ctx, grupo: str = None):
-    if not grupo:
-        await ctx.send("Por favor informe o grupo, (A, B C ou D)")
-        return
-
-    standinng_datas = get_standings(grupo)
-    if not standinng_datas:
-        await ctx.send(f"O grupo **{grupo}** não foi encontrado.")
-        return
-    #table = format_table(standinng_datas)
-    
-    embed = discord.Embed(
-        title='🏆 Tabela do Paulistão',
-        description=f'Aqui está a tabela do **Grupo {grupo.upper()}**',
-        color = discord.Color.blue()
-    )
-    for idx, row in enumerate(standinng_datas, start=1):
-        embed.add_field(
-            name=f'{idx}️⃣ {row['Time']}',
-            value=f'**Pontos**: {row['Pontos']}',
-            inline=False
-        )
-    embed.set_thumbnail(url="https://upload.wikimedia.org/wikipedia/pt/7/71/Federa%C3%A7%C3%A3o_Paulista_de_Futebol_logo.png")
-    await ctx.send(embed=embed)
-
-
-
-# Comando que retorna info de jogadores (+ command) (apenas do santos)
-
-
-# Comando que retorna os artilheiros (+ command) (só do santos)
 
     
 @bot.command()
@@ -350,9 +300,38 @@ async def jogadores_command(interaction: discord.Interaction, time:str):
     
     await interaction.followup.send(embed=embed, view=view)
     
+    # CLASSE DO COMANDO DA TABELA DO BRASILEIRAO
+    
+
+@bot.command()
+async def tabela(ctx):
+    times = get_tabela()  # Lista de tuplas: [(time, pontos), ...]
+
+    embed = discord.Embed(
+        title='     Tabela Brasileirão Série A',
+        color=discord.Color.green()
+    )
+    embed.set_thumbnail(url='https://www.zerozero.pt/img/logos/edicoes/184443_imgbank_.png')
+    
+
+    posicoes = ""
+    nomes = ""
+    pontos = ""
+
+    for i, (time, ponto) in enumerate(times, start=1):
+        posicoes += f"‎‎‎‎‎‎‎ㅤ{i}.\n"
+        nomes += f" ‎‎‎‎{time}\n"
+        pontos += f" ‎‎‎‎‎‎‎ㅤ{ponto.ljust(3)}\n"
+
+    embed.add_field(name="Posição‎‎‎‎‎‎‎ㅤ", value=posicoes, inline=True)
+    embed.add_field(name="‎‎‎‎‎‎‎‎‎‎‎Times‎‎‎‎‎‎‎ㅤ", value=nomes, inline=True)
+    embed.add_field(name="Pontos‎‎‎‎‎‎‎ㅤ", value=pontos, inline=True)
+    embed.set_image(url='https://i.postimg.cc/9MRrmwTS/brasilerao.png')
+    await ctx.send(embed=embed)
+    
+    
     
     ## COMANDO DE ARTILHEIROS
-    
     
 class ArtilheirosView(discord.ui.View):
     
@@ -684,8 +663,11 @@ async def server(ctx):
 async def var(ctx):
     
     messages = [message async for message in ctx.channel.history(limit=20)]
-    contents = [f"**{message.author.display_name}**: {message.content}" for message in reversed(messages)]
-
+    contents = [
+        f"**{message.author.display_name}**: {message.content}"
+        for message in reversed(messages)
+        if message.author.display_name != 'futebot' and not message.content.startswith('%')
+    ]
     varCheck = groqVar(contents)
 
     await ctx.send(varCheck)
@@ -697,9 +679,37 @@ async def var_error(ctx, error):
         retry_after = round(error.retry_after)
         
         await ctx.send(f'Comando em cooldown. tente novamente em: {retry_after} s')
+        
+@bot.command()
+async def woah(ctx):
+    path = baixar_woah()
+    await ctx.send(file=discord.File(path))
+    
 
-
+@bot.command()
+@commands.cooldown(rate=1, per=300, type=commands.BucketType.guild)
+async def resenhometro(ctx):
+    messages = [message async for message in ctx.channel.history(limit=50)]
+    
+    contents = [f"**{message.author.display_name.upper()}**: {message.content}" for message in reversed(messages)]
+    
+    resenhometro = groqResenhemetro(contents)
+    
+    await ctx.send(resenhometro)
+@resenhometro.error
+async def resenhometro_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        retry_after = round(error.retry_after)
+        await ctx.send(f'Comando em cooldown. Tente novamente em: {retry_after} segundos')
+    
 @bot.command()
 async def listguilds(ctx):
     await ctx.send(bot.guilds)
+    
+    
+    
 bot.run(TOKEN) 
+
+path = baixar_woah()
+if os.path.exists(path):
+    shutil.rmtree(path)

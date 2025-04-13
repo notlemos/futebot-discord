@@ -50,4 +50,19 @@ def groqVar(msg):
                 model="llama-3.3-70b-versatile"
         )
         return chat_completation.choices[0].message.content
-
+def groqResenhemetro(msg):
+        content = "\n".join(msg)
+        chat_completation = client.chat.completions.create(
+                messages=[
+                        {
+                                "role": "system",
+                                "content": "Você sera encarregado de ser as ultimas mensagens, e retornar a porcentagem de 0 a 100, do quao resenha está a conversa, levando piadas e tudo mais em consideração, na primeira linha voce falará 'O RESENHOMETRO DO PAPO ESTÁ EM ...%, DEPOIS PULE LINHA E ESCREVA EM UMA OU DUAS LINHAS O MOTIVO"
+                        },
+                        {
+                                "role": "user",
+                                "content": f"{content}"
+                        }
+                ],
+                model="llama-3.3-70b-versatile"
+        )
+        return chat_completation.choices[0].message.content 

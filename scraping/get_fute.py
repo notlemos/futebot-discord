@@ -3,58 +3,6 @@ from bs4 import BeautifulSoup
 import re
 
 
-# Url a ser usada
-url = 'https://www.sofascore.com/api/v1/tournament/57411/season/69522/standings/total'
-
-# Headers para simular um navegador
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"
-}
-
-
-# Funçao onde pego os dados atráves de uma raspagem de dados com request.
-
-def get_standings(grupo_nome):
-    response = requests.get(url, headers=headers)
-    grupo = ''
-    
-    # Verificar se a resposta foi bem-sucedida
-    
-    if response.status_code == 200:
-        data = response.json()
-        if grupo_nome == 'A':
-            grupo = "Group A"
-        elif grupo_nome == 'B':
-            grupo = "Group B"
-        elif grupo_nome == "C":
-            grupo = "Group C"
-        elif grupo_nome == "D":
-            grupo = "Group D"
-        
-        
-        all_data = []
-            
-        for group_stat in data['standings']:
-            group_name = group_stat['name']
-                
-            if group_stat['name'] == f'{grupo}':
-                
-                for team_info in group_stat['rows']:
-                    team_name = team_info['team']['name']
-                    team_points = team_info['points']
-                        
-                    all_data.append({
-                        'Grupo': group_name, 
-                        'Time': team_name,
-                        'Pontos': team_points
-                    })
-                return all_data
-    
-        else:
-            return []
-        
-
-
 def get_players(time): 
     url = f'https://www.ogol.com.br/equipe/{time}'
     headers = {
@@ -72,8 +20,6 @@ def get_players(time):
         img = div2.find('img')
         if img:
             escudo = img.get('src')
-        else:
-            escudo = None
         
         
         
@@ -325,3 +271,34 @@ def get_transfers(time):
             return 'NO TRANSFERS'
         
 
+def get_tabela():
+    url = 'https://www.cnnbrasil.com.br/esportes/futebol/tabela-do-brasileirao/'
+
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"
+        }  # Adicione um User-Agent para evitar bloqueios
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        all_data = []
+        
+        divs = soup.find_all('div', class_='team__info')
+        times = []
+        
+        for div in divs:
+            span = div.find('span', class_='hide__s')
+            if span:
+                times.append(span.text.strip())
+
+        
+        
+        pontos = []
+        for ponto in soup.find_all('td', class_='teams__points table__body__cell--gray'):
+            pontoss = ponto.text
+            pontos.append(pontoss)
+        for team, scores in zip (times, pontos):
+            all_data.append((team, scores))
+        return all_data
+print(get_tabela())
