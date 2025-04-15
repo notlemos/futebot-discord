@@ -336,17 +336,19 @@ async def tabela(ctx):
     largura_tabela = 1000
     margem_esquerda = (largura_img - largura_tabela) // 2
     
-    # Posições
+    # Coordenadas dos textos
 
     pos1 = (margem_esquerda + 320, 360)   # Times
     pos2 = (margem_esquerda + 890, 360)   # Pontos
     pos3 = (margem_esquerda + 130, 360)   # Posição 
     
-    # Linhas
+    # Linhas verticais de separação
 
     linha1_x = margem_esquerda
     linha2_x = margem_esquerda + 820
     linha3_x = margem_esquerda + 1000
+    
+    # Fazendo a tabela
 
     for i, (t, p, pos) in enumerate(zip(time, ponto, position)):
         y = pos1[1] + i * y_off_set
@@ -358,7 +360,7 @@ async def tabela(ctx):
         draw.text((pos2[0], y), str(p), fill=color, font=font)
         draw.text((pos3[0], y), str(pos), fill=color, font=font)
 
-    # Linhas verticais centralizadas
+    # Linhas 
     
     draw.line((linha1_x, 366, linha1_x, 25.55 * y_off_set), fill=color3, width=20)
     draw.line((linha2_x, 366, linha2_x, 25.55 * y_off_set), fill=color3, width=20)
