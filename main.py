@@ -5,8 +5,11 @@ from scraping.horoscope import horoscope_data
 from apicalls.groqAPI import groqFut, groqPop, groqVar, groqResenhemetro
 from apicalls.servermine import serverOn
 from apicalls.woah import baixar_woah
+
 import datetime
 import sqlite3
+
+from PIL import Image, ImageDraw, ImageFont
 
 import asyncio
 
@@ -18,6 +21,7 @@ from discord import Spotify
 
 
 import os
+import io
 import shutil
 
 
@@ -31,7 +35,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.all() # Permissões do bot.
 bot = commands.Bot(command_prefix='%', intents=intents) # Prefixo do bot
 
-
+#Criação do Banco de Dados SQLite
 
 def create_db():
     conn = sqlite3.connect("/app/data/database.sqlite")
@@ -67,7 +71,7 @@ def delete_dates(movie_id: int):
     
     
 allowed_guild_id = 928519278188167208
-# Comando evento para quando o bot starta.
+
 
 @bot.event 
 async def on_ready():
@@ -300,38 +304,78 @@ async def jogadores_command(interaction: discord.Interaction, time:str):
     
     await interaction.followup.send(embed=embed, view=view)
     
-    # CLASSE DO COMANDO DA TABELA DO BRASILEIRAO
     
 
 @bot.command()
 async def tabela(ctx):
-    times = get_tabela()  # Lista de tuplas: [(time, pontos), ...]
-
-    embed = discord.Embed(
-        title='     Tabela Brasileirão Série A',
-        color=discord.Color.green()
-    )
-    embed.set_thumbnail(url='https://www.zerozero.pt/img/logos/edicoes/184443_imgbank_.png')
     
+    image = Image.open('backgrounds/background3.png') # Background ta tabela
 
-    posicoes = ""
-    nomes = ""
-    pontos = ""
 
-    for i, (time, ponto) in enumerate(times, start=1):
-        posicoes += f"‎‎‎‎‎‎‎ㅤ{i}.\n"
-        nomes += f" ‎‎‎‎{time}\n"
-        pontos += f" ‎‎‎‎‎‎‎ㅤ{ponto.ljust(3)}\n"
 
-    embed.add_field(name="Posição‎‎‎‎‎‎‎ㅤ", value=posicoes, inline=True)
-    embed.add_field(name="‎‎‎‎‎‎‎‎‎‎‎Times‎‎‎‎‎‎‎ㅤ", value=nomes, inline=True)
-    embed.add_field(name="Pontos‎‎‎‎‎‎‎ㅤ", value=pontos, inline=True)
-    embed.set_image(url='https://i.postimg.cc/9MRrmwTS/brasilerao.png')
-    await ctx.send(embed=embed)
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.truetype(r'fonts/Roboto_Condensed-Bold.ttf', size=58) # Fonte utilizada na tabela
+    time, ponto = get_tabela() # Dados
+ 
+
+
+
+
+    color = (255,255,255) # Cor do texto
+    position = list(range(1, 21)) # Posição 1 a 20
+    color2 = (0,22,59) # Cor do fundo da escrita
+    color3 = (0,14,39) # Cor das bordas
+    y_off_set = 65 # Espaçamento vertical entre cada linha
+    texto_cabecalho = "      Posição             Times                     Pontos" # Cabeçalho
+    draw.text((200, 280), texto_cabecalho, fill=color, font=font) # Cabeçalho escrito
+
+    largura_img, altura_img = image.size # Tamanho da imagem
+
+    # Dimensão
+
+    largura_tabela = 1000
+    margem_esquerda = (largura_img - largura_tabela) // 2
     
+    # Posições
+
+    pos1 = (margem_esquerda + 320, 360)   # Times
+    pos2 = (margem_esquerda + 890, 360)   # Pontos
+    pos3 = (margem_esquerda + 130, 360)   # Posição 
     
+    # Linhas
+
+    linha1_x = margem_esquerda
+    linha2_x = margem_esquerda + 820
+    linha3_x = margem_esquerda + 1000
+
+    for i, (t, p, pos) in enumerate(zip(time, ponto, position)):
+        y = pos1[1] + i * y_off_set
+        linha_y = y + 35
+
+        draw.line((margem_esquerda, linha_y, margem_esquerda + largura_tabela, linha_y), fill=color2, width=60)
+        draw.line((margem_esquerda, linha_y+35, margem_esquerda + largura_tabela, linha_y+35), fill=color3, width=20)
+        draw.text((pos1[0], y), t, fill=color, font=font)
+        draw.text((pos2[0], y), str(p), fill=color, font=font)
+        draw.text((pos3[0], y), str(pos), fill=color, font=font)
+
+    # Linhas verticais centralizadas
     
-    ## COMANDO DE ARTILHEIROS
+    draw.line((linha1_x, 366, linha1_x, 25.55 * y_off_set), fill=color3, width=20)
+    draw.line((linha2_x, 366, linha2_x, 25.55 * y_off_set), fill=color3, width=20)
+    draw.line((linha3_x, 366, linha3_x, 25.55 * y_off_set), fill=color3, width=20)
+    draw.line((linha1_x+280, 366, linha1_x+280, 25.55 * y_off_set), fill=color3, width=20)
+    draw.line((211, linha_y+35, 1230, linha_y+35), fill=color3, width=20)
+    draw.line((211, 360, 1230, 360), fill=color3, width=20)
+    
+        
+
+    image.save("tabela.png")
+        
+    
+    file = discord.File("tabela.png", filename="tabela.png")
+    
+    await ctx.send(file=file)
+    
     
 class ArtilheirosView(discord.ui.View):
     
@@ -624,9 +668,17 @@ async def gato(ctx):
     response = requests.get(url)   
     resposta = response.json()
 
+    img = '/tmp/gato.png'
     link = resposta[0]['url']
+    with requests.get(link, stream=True) as r:
+        r.raise_for_status()
+        with open(img, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=200):
+                if chunk:
+                    f.write(chunk)
     
-    await ctx.send(link)
+    
+    await ctx.send(file=discord.File(img))
 
 @bot.command()
 async def explique(ctx,*, msg: str):
@@ -713,3 +765,5 @@ bot.run(TOKEN)
 path = baixar_woah()
 if os.path.exists(path):
     shutil.rmtree(path)
+if os.path.exists('/tmp/gato.png'):
+    shutil.rmtree('/tmp/gato.png')

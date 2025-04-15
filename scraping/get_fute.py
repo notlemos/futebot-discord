@@ -299,6 +299,6 @@ def get_tabela():
             pontoss = ponto.text
             pontos.append(pontoss)
         for team, scores in zip (times, pontos):
-            all_data.append((team, scores))
-        return all_data
-print(get_tabela())
+            all_data.append((team.upper(), scores))
+        
+        return times, pontos
