@@ -290,11 +290,8 @@ def get_tabela():
         for div in divs:
             span = div.find('span', class_='hide__s')
             if span:
-                if span.text == "Red Bull Bragantino":
-                    times.append("RB BRAGANTINO")
-                else:
-                    
-                    times.append(span.text.strip().upper())
+                
+                times.append(span.text.strip())
 
         
         
