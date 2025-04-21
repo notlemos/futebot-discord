@@ -311,15 +311,9 @@ async def tabela(ctx):
     
     image = Image.open('backgrounds/background3.png')
 
-
-
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype('fonts/Roboto_Condensed-Bold.ttf', size=56)
     time, ponto = get_tabela()
-
-
-
-
 
     color = (255,255,255) 
     
@@ -378,7 +372,7 @@ async def tabela(ctx):
             draw.line((margem_esquerda, linha_y + 35, margem_esquerda + largura_tabela, linha_y + 35), fill=color3, width=20)
         
         draw.text((pos1[0], y), t, fill=color, font=font)
-        draw.text((pos2[0], y), str(p), fill=color, font=font)
+        draw.text((pos2[0]-10, y), f"{p:02d}", fill=color, font=font)
         draw.text((pos3[0], y), f"{pos:02d}", fill=color, font=font)
         
         
@@ -790,7 +784,10 @@ async def listguilds(ctx):
     await ctx.send(bot.guilds)
     
     
-    
+
+
+
+
 bot.run(TOKEN) 
 
 path = baixar_woah()

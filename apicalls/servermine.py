@@ -10,7 +10,7 @@ def serverOn():
 
     response = requests.get(url, headers=headers)
     resposta = response.json()
-    print(resposta)
+    
     if response.status_code == 200: 
         
         

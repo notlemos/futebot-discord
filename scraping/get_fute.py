@@ -298,7 +298,8 @@ def get_tabela():
         pontos = []
         for ponto in soup.find_all('td', class_='teams__points table__body__cell--gray'):
             pontoss = ponto.text
-            pontos.append(pontoss)
+            pontoss_a = int(pontoss)
+            pontos.append(pontoss_a)
         for team, scores in zip (times, pontos):
             all_data.append((team, scores))
         
