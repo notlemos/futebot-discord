@@ -1,6 +1,15 @@
 FROM python:3.13.3-alpine
 
-RUN apk add --no-cache sqlite
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    openssl-dev \
+    python3-dev \
+    sqlite \
+    build-base
+
+
 
 WORKDIR /app
 
@@ -11,4 +20,4 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "main.py"]
+CMD ["python", "-m", "src"]

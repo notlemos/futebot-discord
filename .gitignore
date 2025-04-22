@@ -194,6 +194,7 @@ cython_debug/
 =======
 data/
 a.py 
+main.py
 teste.py
 database.db/
 >>>>>>> 7204e97 (FIRST COMMIT)

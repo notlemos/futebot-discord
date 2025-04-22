@@ -1,0 +1,34 @@
+import discord 
+from discord.ext import commands
+from discord import app_commands
+from src.apicalls.weather import weatherdata, date
+import logging
+logger = logging.getLogger(__name__)
+
+
+
+class Weather(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot 
+        
+    @app_commands.command(name="weather", description="Temperatura da cidade.")
+    async def clima(self, interaction: discord.Interaction, cidade: str):
+        await interaction.response.defer()
+        
+        if not date(cidade):
+            await interaction.followup.send(f"A cidade {cidade.title()} não foi encontrada.")
+            return
+        flag, temp, sens, humidity, name, cod = weatherdata(cidade)
+        embed = discord.Embed(
+            title=f'{name} ',
+            description='',
+            color=0x93B7C3
+        )
+        embed.add_field(name=f'Temperatura Atual:', value=f'{temp:.1f}°C', inline=True)
+        embed.add_field(name='Sensação: ', value=f'{sens:.1f}°C', inline=True)
+        embed.add_field(name=f'Umidade:', value=f'{humidity}%', inline=True)
+        embed.set_footer(icon_url=flag, text=f'{cod}')
+        embed.set_thumbnail(url='https://em-content.zobj.net/source/apple/391/cloud_2601-fe0f.png')
+        await interaction.followup.send(embed=embed)
+async def setup(bot):
+    await bot.add_cog(Weather(bot))

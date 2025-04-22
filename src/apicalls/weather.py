@@ -24,7 +24,7 @@ def date(endpoint):
 def weatherdata(cidade):
     
     all = date(cidade)
-    flag = f'https://flagsapi.com/{all['sys']['country']}/flat/64.png' 
+    flag = f"https://flagsapi.com/{all['sys']['country']}/flat/64.png"
     temp = all['main']['temp']
     sens = all['main']['feels_like']
     humidity = all['main']['humidity']
