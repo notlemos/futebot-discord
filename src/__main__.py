@@ -29,16 +29,16 @@ async def on_ready():
 
 async def main():
     async with bot:
-        ext_path = pathlib.Path("src/extensions")
+        ext_path = pathlib.Path("src/cogs")
         for file in ext_path.glob("*.py"):
             if file.name.startswith("__"):
                 continue
-            module = f"src.extensions.{file.stem}"
+            module = f"src.cogs.{file.stem}"
             try:
                 await bot.load_extension(module)
-                print(f"Extension carregada: {module}")
+                logger.info(f"Extension carregada: {module}")
             except Exception as e:
-                print(f"Erro {module}: {e}")
+                logger.info(f"Erro {module}: {e}")
 
         await bot.start(TOKEN)
 

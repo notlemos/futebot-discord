@@ -5,12 +5,12 @@ from src.scraping.get_fute import get_transfers
 from src.utils.views import TransfersViews
 import logging
 logger = logging.getLogger(__name__)
-class Transfers(commands.Cog):
+class TransfersCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
     @app_commands.command(name="transferencias", description="Mostra as ultimas transferências do seu time")
-    async def transfers_command(interaction: discord.Interaction, time:str):
+    async def transfers_command(self, interaction: discord.Interaction, time:str):
         await interaction.response.defer()
         transferencias, escudo = get_transfers(time.lower())
         if transferencias is None: 
@@ -25,4 +25,4 @@ class Transfers(commands.Cog):
         await interaction.followup.send(embed=embed, view=view)
 
 async def setup(bot):
-    await bot.add_cog(Transfers(bot))
+    await bot.add_cog(TransfersCog(bot))
