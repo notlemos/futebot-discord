@@ -23,7 +23,7 @@ bot = commands.Bot(command_prefix="%", intents=intents)
 
 @bot.event
 async def on_ready():
-    logger.info("Bot iniciado")
+    logger.info(f"Bot logged as {bot.user}")
     await bot.tree.sync()
     
 
