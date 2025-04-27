@@ -12,13 +12,13 @@ allowed_guild_id = 928519278188167208
 class Filmes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot 
-        self.db = DBManager
+        self.db = DBManager()
         
         
     @app_commands.command(name="addfilme", description="Adiciona um Filme")
     async def saveMovie(self, interaction: discord.Interaction, filme: str, nota1: float, nota2: float):
         member = interaction.user 
-        self.db.save_movie(member, filme, nota1, nota2)
+        self.db.save_movie(member.name, filme, nota1, nota2)
         await interaction.response.send_message("Filme adicionado com sucesso!")
         
     @app_commands.command(name="delfilme", description="Remove um filme")

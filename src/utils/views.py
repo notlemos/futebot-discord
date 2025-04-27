@@ -2,14 +2,16 @@ import discord
 import sqlite3
 import os
 from src.apicalls.get_movies import get_items
-
-
-
+import logging
+logger = logging.getLogger(__name__)
 
 class FilmesView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        self.conn = sqlite3.connect("//app/data/database.sqlite")
+        try:
+            self.conn = sqlite3.connect("/app/data/database.sqlite")
+        except sqlite3.OperationalError as e:
+            logger.error(f"Erro ao abrir o banco de dados: {e}")
         self.cursor = self.conn.cursor()
         self.cursor.execute("SELECT id, filme, name, nota1, nota2 FROM filmes")
         self.filmes = self.cursor.fetchall()
