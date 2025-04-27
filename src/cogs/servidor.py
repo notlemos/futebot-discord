@@ -8,22 +8,26 @@ class ServerStatus(commands.Cog):
         super().__init__()
         self.bot = bot
     
-    @commands.command(name="status")
+    @commands.command(name="status", aliases=["server"])
     async def status(self, ctx):
         status, playerslist, playersnome = serverOn()
-        if status == True:
-    
-            statusMsg = "Online" 
-            if playersnome:
-                playersFormated = [nome for nome in playersnome]    
-            
-                playersFormated_str = ", ".join(playersFormated)
-                await ctx.send(f"Status: {statusMsg} \n\nPlayers Onlines: {playerslist} \n\nNomes: {playersFormated_str}")
-                return
-            await ctx.send(f"Status: {statusMsg} \n\nPlayers Onlines: {playerslist}")
         
-        else:
+        if status == False: 
             statusMsg = 'Offline'
             await ctx.send(f'Status: {statusMsg}')
+            return 
+    
+        statusMsg = "Online" 
+        if playersnome:
+            playersFormated = [nome for nome in playersnome]    
+            
+            playersFormated_str = ", ".join(playersFormated)
+            await ctx.send(f"Status: {statusMsg} \n\nPlayers Onlines: {playerslist} \n\nNomes: {playersFormated_str}")
+            return
+        
+        await ctx.send(f"Status: {statusMsg} \n\nPlayers Onlines: {playerslist}")
+        return 
+        
+            
 async def setup(bot):
     await bot.add_cog(ServerStatus(bot))
