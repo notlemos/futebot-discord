@@ -1,4 +1,3 @@
-
 services:
   main:
     image: discord.bot:latest
@@ -10,4 +9,3 @@ services:
     env_file:
       - .env
     command: python -m src
-    
