@@ -5,8 +5,3 @@
 
 ____
 
- ## <p align="center"> requires </p>
- - <a href="https://www.docker.com/">Docker</a>
- - <a href="https://docs.docker.com/compose/">Docker-Compose</a>
- - <a href="https://discord.com/developers/applications">Discord Apliccation</a>
- - <a href="https://developer.themoviedb.org/docs/getting-started">TMDB API KEY</a>
