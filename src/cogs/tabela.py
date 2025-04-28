@@ -22,6 +22,7 @@ class TabelaView(commands.Cog):
 
         
         # Coordenadas e offsets
+        
         # Parte 1 da tabela
         x1, y1, off1 = 115, 261, 0
         x2, y2, off2 = 350, 251, 0
@@ -46,11 +47,6 @@ class TabelaView(commands.Cog):
             
         image.save("tabela.png")
 
-                    
-
-                
-                    
-                
         file = discord.File("tabela.png", filename="tabela.png")
                 
         await ctx.send(file=file)
