@@ -40,10 +40,10 @@ class SpotifyPillow(commands.Cog):
                 
                 url = activity.album_cover_url
                 response = requests.get(url)
-                capa = Image.open(BytesIO(response.content)).resize((378, 364), Image.Resampling.LANCZOS)
-
+                capa = Image.open(BytesIO(response.content)).convert("RGBA")
+                capa = capa.resize((378,378), Image.LANCZOS)
                 # Posições para colar a imagem
-                pos_x, pos_y = 72, 42
+                pos_x, pos_y = 72, 28
 
                 # Criar a máscara com bordas arredondadas
                 mask = Image.new("L", capa.size, 0)
@@ -51,12 +51,9 @@ class SpotifyPillow(commands.Cog):
 
                 # Criar uma borda arredondada com transição suave
                 radius = 15
-                draw.rounded_rectangle((0, 0, 378, 364), radius=radius, fill=255)
+                draw.rounded_rectangle((0, 0, 378,378), radius=radius, fill=255)
 
-                # Melhorar a suavização das bordas aplicando um filtro de desfoque mais leve
-                #mask = mask.filter(ImageFilter.GaussianBlur(5))  # Ajuste o valor conforme necessário
-
-                # Criar a imagem com fundo transparente
+                
                 capa_arredondada = Image.new("RGBA", capa.size)
                 capa_arredondada.paste(capa, (0, 0), mask)
 
@@ -74,7 +71,7 @@ class SpotifyPillow(commands.Cog):
                 font_nome_user = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 42)
                 font_main = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 48)
                 font_menor = ImageFont.truetype("fonts/Roboto-Regular.ttf", 28)
-                font_tempo = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 26)
+                font_tempo = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 36)
                 # Campos de escrita.
                 
                 user_name = ImageDraw.Draw(image)
@@ -111,7 +108,7 @@ class SpotifyPillow(commands.Cog):
                 elapsed_str = format_timedelta(elapsed_time)
                 duration_str = format_timedelta(duration)
                 
-                tempo.text((655, 210), f"  {elapsed_str} / {duration_str}", font=font_tempo, fill=(250,250,250,250))
+                tempo.text((678, 230), f"  {elapsed_str} / {duration_str}", font=font_tempo, fill=(250,250,250,250))
                 
                 image.paste(capa_arredondada, (pos_x, pos_y), capa_arredondada)
 
