@@ -21,7 +21,7 @@ ____
 # Installing 
 1. Clone the bot repositore using git.
 ```bash
-git clone git@github.com:notlemos/futebot-discord.git
+git clone https://github.com/notlemos/futebot-discord.git
 ```
 2. Go to the directory.
 ```bash
