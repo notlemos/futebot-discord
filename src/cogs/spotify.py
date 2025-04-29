@@ -4,7 +4,6 @@ from discord.activity import Spotify
 import logging
 import requests
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
-from src.utils.rounded_field import draw_rounded_field_with_alpha
 from io import BytesIO
 logger = logging.getLogger(__name__)
 

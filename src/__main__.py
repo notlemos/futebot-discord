@@ -4,7 +4,7 @@ import asyncio
 import os
 from dotenv import load_dotenv
 import pathlib
-from src.log import setup_logger
+from src.utils.log import setup_logger
 import logging
 
 
