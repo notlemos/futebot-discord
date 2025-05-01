@@ -1,6 +1,6 @@
 import discord 
 from discord.ext import commands 
-from src.scraping.get_fute import get_tabela
+from src.scraping.futedata import get_tabela
 from PIL import Image, ImageDraw, ImageFont
 import logging
 logger = logging.getLogger(__name__)
