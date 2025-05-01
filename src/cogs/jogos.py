@@ -1,7 +1,7 @@
 import discord 
 from discord.ext import commands
 from discord import app_commands 
-from src.scraping.get_fute import get_jogos, get_players
+from src.scraping.futedata import getJogos, getPlayers
 import logging
 logger = logging.getLogger(__name__)
 
@@ -13,8 +13,8 @@ class JogosView(commands.Cog):
     async def jogos(self, interaction: discord.Interaction, time: str):
         await interaction.response.defer()
         
-        jogos_data = get_jogos(time)
-        jogadores = get_players(time)
+        jogos_data = getJogos(time)
+        jogadores = getPlayers(time)
         jogadores = jogadores 
         index = 0
         

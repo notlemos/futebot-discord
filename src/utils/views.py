@@ -119,12 +119,12 @@ class JogadoresView(discord.ui.View):
         self.index = 0
     def format_embed(self):
         jogador = self.jogadores[self.index]
+        jogadores = self.jogadores
         embed = discord.Embed(title=f'Jogador {self.index+1} / {len(self.jogadores)}', description=f'Aqui está as informações do jogador.', color=discord.Color.red())
         embed.add_field(name="Nome", value=jogador['Nome'], inline=False)
         embed.add_field(name='Numero', value=jogador['Número'], inline=False)
         embed.add_field(name='Posição', value=jogador['Posicao'], inline=False)
         embed.add_field(name='Idade', value=jogador['Idade'], inline=False)
-        embed.set_thumbnail(url=f'{jogador['Escudo']}')
         return embed 
     @discord.ui.button(label="Anterior", style=discord.ButtonStyle.grey)
     async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -139,6 +139,39 @@ class JogadoresView(discord.ui.View):
     async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.index += 1
         if self.index >= len(self.jogadores):
+            self.index = 0
+            
+        embed = self.format_embed()
+        await interaction.response.edit_message(embed=embed, view=self)
+    @discord.ui.button(label="Fechar", style=discord.ButtonStyle.grey)
+    async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.edit_message(content="Mensagem Fechada! ", embed=None, view=None)
+
+class ArtilheirosView(discord.ui.View):
+    def __init__(self, artilheiros):
+        super().__init__(timeout=None)
+        self.artilheiros = artilheiros 
+        self.index = 0
+    def format_embed(self):
+        artilheiro = self.artilheiros[self.index]
+        artilheiros = self.artilheiros
+        embed = discord.Embed(title=f'Jogador {artilheiro['Posicao']} / {len(artilheiros)}')
+        embed.add_field(name='Nome', value=artilheiro['Nome'], inline=False)
+        embed.add_field(name='Gols', value=artilheiro['Gols'], inline=False)
+        return embed 
+    @discord.ui.button(label="Anterior", style=discord.ButtonStyle.grey)
+    async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.index -= 1
+        if self.index < 0:
+            self.index = len(self.artilheiros) - 1 
+        
+        embed = self.format_embed()
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+    @discord.ui.button(label="Próximo", style=discord.ButtonStyle.grey)
+    async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.index += 1
+        if self.index >= len(self.artilheiros):
             self.index = 0
             
         embed = self.format_embed()

@@ -1,7 +1,7 @@
 import discord 
 from discord.ext import commands
 from discord import app_commands
-from src.scraping.get_fute import get_transfers
+from src.scraping.futedata import get_transfers
 from src.utils.views import TransfersViews
 import logging
 logger = logging.getLogger(__name__)
