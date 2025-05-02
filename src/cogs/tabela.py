@@ -1,6 +1,6 @@
 import discord 
 from discord.ext import commands 
-from src.scraping.futedata import get_tabela
+from src.scraping.tabelaData import getTabela
 from PIL import Image, ImageDraw, ImageFont
 import logging
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ class TabelaView(commands.Cog):
         font = ImageFont.truetype('fonts/BebasNeue-Regular.otf', size=32)
         fontPts = ImageFont.truetype('fonts/BebasNeue-Regular.otf', size=48)
 
-        times, pontos = get_tabela()
+        times, pontos = getTabela()
 
         
         # Coordenadas e offsets

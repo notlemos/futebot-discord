@@ -1,7 +1,7 @@
 import discord 
 from discord.ext import commands
 from discord import app_commands
-from src.scraping.futedata import get_transfers
+from src.scraping.futedata import getTransfers
 from src.utils.views import TransfersViews
 import logging
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ class TransfersCog(commands.Cog):
     @app_commands.command(name="transferencias", description="Mostra as ultimas transferências do seu time")
     async def transfers_command(self, interaction: discord.Interaction, time:str):
         await interaction.response.defer()
-        transferencias, escudo = get_transfers(time.lower())
+        transferencias, escudo = getTransfers(time.lower())
         if transferencias is None: 
             await interaction.followup.send(f"⚠️ Time **{time}** não encontrado! Verifique o nome e tente novamente.")
             return 

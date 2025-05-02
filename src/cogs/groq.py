@@ -18,7 +18,7 @@ class GroqCommandsCog(commands.Cog):
         await ctx.send(resposta)
         
     @commands.command(name="var")
-    @commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
+    @commands.cooldown(rate=1, per=120, type=commands.BucketType.user)
     async def var(self, ctx):
         messages = [message async for message in ctx.channel.history(limit=20)]
         contents = [
