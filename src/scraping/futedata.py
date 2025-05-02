@@ -10,7 +10,6 @@ headers = {
 def getPlayers(time): 
     url = f'https://www.ogol.com.br/equipe/{time}'
     response = requests.get(url, headers=headers)
-    
     if response.status_code != 200:
         return None
 
@@ -79,6 +78,7 @@ def getPlayers(time):
         return jogadores
     else:
         return None 
+
 def getEscudo(time): 
     url = f'https://www.ogol.com.br/equipe/{time}'
     response = requests.get(url, headers=headers)
@@ -97,7 +97,7 @@ def getEscudo(time):
             escudo = img.get('src')
     return escudo
 
-def getPlayers(time): 
+def getArtilheiros(time): 
     url = f'https://www.ogol.com.br/equipe/{time}'
     response = requests.get(url, headers=headers)
     
@@ -181,7 +181,7 @@ def getJogos(time):
         return None
 
    
-def get_transfers(time):
+def getTransfers(time):
 
     links = {
         'flamengo': 'https://onefootball.com/pt-br/time/flamengo-1802/transferencias',
@@ -309,33 +309,5 @@ def get_transfers(time):
             return 'NO TRANSFERS'
         
 
-def get_tabela():
-    url = 'https://www.cnnbrasil.com.br/esportes/futebol/tabela-do-brasileirao/'
 
-    response = requests.get(url, headers=headers)
-
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
-        all_data = []
-        
-        divs = soup.find_all('div', class_='team__info')
-        times = []
-        
-        for div in divs:
-            span = div.find('span', class_='hide__s')
-            if span:
-                
-                times.append(span.text.strip())
-
-        
-        
-        pontos = []
-        for ponto in soup.find_all('td', class_='teams__points table__body__cell--gray'):
-            pontoss = ponto.text
-            pontoss_a = int(pontoss)
-            pontos.append(pontoss_a)
-        for team, scores in zip (times, pontos):
-            all_data.append((team, scores))
-        
-        return times, pontos
 
