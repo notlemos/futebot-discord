@@ -45,31 +45,12 @@ class SpotifyPillow(commands.Cog):
                 pos_x, pos_y = 72, 28
 
                 # Criar a máscara com bordas arredondadas
-                mask = Image.new("L", capa.size, 0)
-                draw = ImageDraw.Draw(mask)
-
-                # Criar uma borda arredondada com transição suave
-                radius = 15
-                draw.rounded_rectangle((0, 0, 378,378), radius=radius, fill=255)
-
-                
-                capa_arredondada = Image.new("RGBA", capa.size)
-                capa_arredondada.paste(capa, (0, 0), mask)
-
-                # Agora, aplique uma suavização à própria imagem para suavizar as bordas mais visíveis (caso necessário)
-                capa_arredondada = capa_arredondada.filter(ImageFilter.SMOOTH_MORE)
-
-                # Colocar a máscara na imagem arredondada
-                capa_arredondada.putalpha(mask)
-
-                # Colar a imagem arredondada na imagem final
-                
                 
                     
                 # Fontes Escritas do spotify
                 font_nome_user = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 42)
                 font_main = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 48)
-                font_menor = ImageFont.truetype("fonts/Roboto-Regular.ttf", 28)
+                font_menor = ImageFont.truetype("fonts/Roboto-Regular.ttf", 24)
                 font_tempo = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 36)
                 # Campos de escrita.
                 
@@ -101,15 +82,14 @@ class SpotifyPillow(commands.Cog):
                 # Colar a capa sobre o fundo
                 duration = activity.duration  # duração total (tipo timedelta)
                 start_time = activity.start  # datetime do início
-                
-                elapsed_time = discord.utils.utcnow() - start_time
+                elapsed_time = discord.utils.utcnow() - start_time 
                 
                 elapsed_str = format_timedelta(elapsed_time)
                 duration_str = format_timedelta(duration)
                 
                 tempo.text((678, 230), f"  {elapsed_str} / {duration_str}", font=font_tempo, fill=(250,250,250,250))
                 
-                image.paste(capa_arredondada, (pos_x, pos_y), capa_arredondada)
+                image.paste(capa, (pos_x, pos_y), capa)
 
                 image.save("spotify_card.png", format="png", optimize=True)
                 file = discord.File("spotify_card.png", filename="spotify_card.png")
