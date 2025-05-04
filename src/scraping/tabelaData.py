@@ -17,22 +17,17 @@ def getTabela():
     soup = BeautifulSoup(response.text, 'html.parser')
     all_data = []
         
-    divs = soup.find_all('div', class_='team__info')
     times = []
+    pontos = []     
+    
+    for nome in soup.find_all('span', class_='hide__s'):
+        times.append(nome.get_text(strip=True))
         
-    for div in divs:
-        span = div.find('span', class_='hide__s')
-        if span:
-                
-            times.append(span.text.strip())
-
-        pontos = []
-        for ponto in soup.find_all('td', class_='teams__points table__body__cell--gray'):
-            pontoss = ponto.text
-            pontoss_a = int(pontoss)
-            pontos.append(pontoss_a)
-        for team, scores in zip (times, pontos):
-            all_data.append((team, scores))
+    
+    for ponto in soup.find_all('td', class_='teams__points table__body__cell--gray'):
+        pontoss = ponto.text
+        pontoss_a = int(pontoss)
+        pontos.append(pontoss_a)
+    
         
-        return times, pontos
-    return None
+    return times, pontos
