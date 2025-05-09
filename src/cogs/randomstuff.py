@@ -1,7 +1,7 @@
 import discord 
 from discord.ext import commands 
 import requests 
-from src.apicalls.woah import baixar_woah
+from apicalls.woah import baixar_woah
 
 class RandomsCogs(commands.Cog):
     def __init__(self, bot):

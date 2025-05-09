@@ -1,7 +1,7 @@
 import discord 
 from discord.ext import commands
 from discord import app_commands 
-from src.scraping.futedata import getJogos, getPlayers
+from scraping.futedata import getJogos, getPlayers
 import logging
 logger = logging.getLogger(__name__)
 

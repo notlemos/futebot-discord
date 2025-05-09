@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from src.scraping.futedata import getPlayers, getArtilheiros, getEscudo
-from src.utils.views import JogadoresView, ArtilheirosView
+from scraping.futedata import getPlayers, getArtilheiros, getEscudo
+from utils.views import JogadoresView, ArtilheirosView
 import logging
 logger = logging.getLogger(__name__)
 

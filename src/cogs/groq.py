@@ -1,6 +1,6 @@
 import discord 
 from discord.ext import commands 
-from src.apicalls.groqAPI import groqFut, groqPop, groqResenhemetro, groqVar
+from apicalls.groqAPI import groqFut, groqPop, groqResenhemetro, groqVar
 
 
 class GroqCommandsCog(commands.Cog):

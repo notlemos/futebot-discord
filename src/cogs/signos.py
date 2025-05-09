@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands 
 import datetime
-from src.scraping.horoscope import horoscope_data
+from scraping.horoscope import horoscope_data
 import logging
 logger = logging.getLogger(__name__)
 class Horoscope(commands.Cog):

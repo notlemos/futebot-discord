@@ -1,8 +1,8 @@
 import discord 
 from discord.ext import commands
 from discord import app_commands
-from src.scraping.futedata import getTransfers
-from src.utils.views import TransfersViews
+from scraping.futedata import getTransfers
+from utils.views import TransfersViews
 import logging
 logger = logging.getLogger(__name__)
 class TransfersCog(commands.Cog):

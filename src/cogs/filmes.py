@@ -2,8 +2,8 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import sqlite3
-from src.utils.views import FilmesView
-from src.utils.db import DBManager
+from utils.views import FilmesView
+from utils.db import DBManager
 import logging
 logger = logging.getLogger(__name__)
 allowed_guild_id = 928519278188167208

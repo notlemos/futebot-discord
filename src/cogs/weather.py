@@ -1,7 +1,7 @@
 import discord 
 from discord.ext import commands
 from discord import app_commands
-from src.apicalls.weather import weatherdata, date
+from apicalls.weather import weatherdata, date
 import logging
 logger = logging.getLogger(__name__)
 

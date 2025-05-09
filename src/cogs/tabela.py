@@ -1,6 +1,6 @@
 import discord 
 from discord.ext import commands 
-from src.scraping.tabelaData import getTabela
+from scraping.tabelaData import getTabela
 from PIL import Image, ImageDraw, ImageFont
 import logging
 logger = logging.getLogger(__name__)

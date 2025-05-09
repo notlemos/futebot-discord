@@ -4,7 +4,7 @@ import asyncio
 import os
 from dotenv import load_dotenv
 import pathlib
-from src.utils.log import setup_logger
+from utils.log import setup_logger
 import logging
 
 
@@ -33,7 +33,7 @@ async def main():
         for file in ext_path.glob("*.py"):
             if file.name.startswith("__"):
                 continue
-            module = f"src.cogs.{file.stem}"
+            module = f"cogs.{file.stem}"
             try:
                 await bot.load_extension(module)
                 logger.info(f"Extension carregada: {module}")
