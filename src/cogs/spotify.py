@@ -3,8 +3,9 @@ from discord.ext import commands
 from discord.activity import Spotify
 import logging
 import requests
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+import os
 logger = logging.getLogger(__name__)
 
 
@@ -62,6 +63,7 @@ class SpotifyPillow(commands.Cog):
                 
                 
                 tempo = ImageDraw.Draw(image)
+                
                 # Campo do nome
                 
                 user_name.text((492,352), f"{user.name}'s spotify", font=font_nome_user, fill=(250,250,250))
@@ -91,9 +93,10 @@ class SpotifyPillow(commands.Cog):
                 
                 image.paste(capa, (pos_x, pos_y), capa)
 
-                image.save("spotify_card.png", format="png", optimize=True)
-                file = discord.File("spotify_card.png", filename="spotify_card.png")
+                image.save("/tmp/spotify_card.png", format="png", optimize=True)
+                file = discord.File("/tmp/spotify_card.png", filename="spotify_card.png")
                 await ctx.send(file=file)
+                os.remove("/tmp/spotify_card.png")
                 return
         await ctx.send(f"{user.display_name} não está ouvindo Spotify no momento.")
 async def setup(bot): 

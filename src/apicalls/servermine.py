@@ -10,10 +10,8 @@ def serverOn():
 
     response = requests.get(url, headers=headers)
     resposta = response.json()
-    
+
     if response.status_code == 200: 
-        
-        
         status = resposta['online']
         
         if status == True:
@@ -29,6 +27,6 @@ def serverOn():
                 return status, playerList, None     
         else:
             return status, None, None
-
+print(serverOn())
     
 

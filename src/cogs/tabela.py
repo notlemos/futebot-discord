@@ -3,23 +3,21 @@ from discord.ext import commands
 from scraping.tabelaData import getTabela
 from PIL import Image, ImageDraw, ImageFont
 import logging
+import os
 logger = logging.getLogger(__name__)
+
 
 class TabelaView(commands.Cog):
     def __init__(self, bot):
         super().__init__()
         self.bot = bot 
-    
     @commands.command(name="tabela")
     async def tabela(self, ctx):
         image = Image.open('backgrounds/tabelabg.png')
-
         draw = ImageDraw.Draw(image)
         font = ImageFont.truetype('fonts/BebasNeue-Regular.otf', size=32)
         fontPts = ImageFont.truetype('fonts/BebasNeue-Regular.otf', size=48)
-
         times, pontos = getTabela()
-
         
         # Coordenadas e offsets
         
@@ -44,11 +42,12 @@ class TabelaView(commands.Cog):
                 draw.text((x4, y4 + off4), f"{pontos:02d}", fill="white", font=fontPts)
                 off3 += 50
                 off4 += 50
-            
-        image.save("tabela.png")
 
-        file = discord.File("tabela.png", filename="tabela.png")
+        image.save("/tmp/tabela.png")
+        file = discord.File("/tmp/tabela.png", filename="tabela.png")
                 
         await ctx.send(file=file)
+        os.remove('/tmp/tabela.png')
+        
 async def setup(bot):
     await bot.add_cog(TabelaView(bot))

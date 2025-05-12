@@ -1,12 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-
+from functools import lru_cache
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"
 }
 
+
+lru_cache(maxsize=50)
 def getPlayers(time): 
     url = f'https://www.ogol.com.br/equipe/{time}'
     response = requests.get(url, headers=headers)
@@ -79,6 +81,8 @@ def getPlayers(time):
     else:
         return None 
 
+
+@lru_cache(maxsize=20)
 def getEscudo(time): 
     url = f'https://www.ogol.com.br/equipe/{time}'
     response = requests.get(url, headers=headers)
@@ -97,6 +101,8 @@ def getEscudo(time):
             escudo = img.get('src')
     return escudo
 
+
+@lru_cache(maxsize=50)
 def getArtilheiros(time): 
     url = f'https://www.ogol.com.br/equipe/{time}'
     response = requests.get(url, headers=headers)
@@ -141,6 +147,8 @@ def getArtilheiros(time):
             
     return artilheiros
 
+
+@lru_cache(maxsize=50)
 def getJogos(time):
     url = f"https://www.ogol.com.br/equipe/{time}"
     response = requests.get(url, headers=headers)
@@ -180,7 +188,7 @@ def getJogos(time):
     else:
         return None
 
-   
+@lru_cache(maxsize=20)
 def getTransfers(time):
 
     links = {
@@ -311,3 +319,4 @@ def getTransfers(time):
 
 
 
+print(getTransfers('santos'))
