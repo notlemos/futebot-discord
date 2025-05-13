@@ -11,7 +11,7 @@ class Weather(commands.Cog):
     def __init__(self, bot):
         self.bot = bot 
         
-    
+        
     async def clima(self, interaction: discord.Interaction, cidade: str):
         await interaction.response.defer()
         

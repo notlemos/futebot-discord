@@ -318,5 +318,3 @@ def getTransfers(time):
         
 
 
-
-print(getTransfers('santos'))
