@@ -4,6 +4,7 @@ import os
 import yt_dlp 
 import random
 import logging
+import string
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,8 @@ class shortsRandom(commands.Cog):
         return None
 
     def baixar_video(self, url):
-        output_path = '/tmp/short.%(ext)s'
+        a =  list(string.ascii_lowercase)
+        output_path = '/tmp/shor%st.%%(ext)s' % "".join(random.choices(a, k=4))
 
         opts = {
             'format': 'bestvideo[ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[ext=mp4][vcodec^=avc1]',
@@ -51,12 +53,16 @@ class shortsRandom(commands.Cog):
         }
 
         with yt_dlp.YoutubeDL(opts) as ydl:
-            ydl.download([url])
-            info_dict = ydl.extract_info(url, download=False)
-            # Garante o caminho final correto
-            filename = ydl.prepare_filename(info_dict).rsplit('.', 1)[0] + '.mp4'
+            try:
+                ydl.download([url])
+                info_dict = ydl.extract_info(url, download=False)
+                # Garante o caminho final correto
+                filename = ydl.prepare_filename(info_dict).rsplit('.', 1)[0] + '.mp4'
+                return filename
+            except Exception as e:
+                print(e)
 
-        return filename
+        
 
     @commands.command(name="shorts")
     async def randomShort(self, ctx, *, tag: str):
@@ -68,12 +74,16 @@ class shortsRandom(commands.Cog):
 
         if video_url == None: 
             await ctx.send("Falha ao baixar.")
+            await ctx.message.clear_reactions()
+            await ctx.message.add_reaction("❌")
             return
         video_path = self.baixar_video(video_url)
-
-        await ctx.send(file=discord.File(video_path))
-        await ctx.message.clear_reactions()
-        await ctx.message.add_reaction("<:check:1372079293403889704>")
+        try:
+            await ctx.reply(file=discord.File(video_path), mention_author=True)
+            await ctx.message.clear_reactions()
+            await ctx.message.add_reaction("<:check:1372079293403889704>")
+        except Exception as e:
+            await ctx.send(e)
         os.remove(video_path)
         return
             
