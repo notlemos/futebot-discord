@@ -16,7 +16,6 @@ class shortsRandom(commands.Cog):
 
         query = f"shorts {query}"
         
-
         opts = {
             'format': 'mp4',
             'noplaylist': True,
@@ -32,9 +31,8 @@ class shortsRandom(commands.Cog):
             results = ydl.extract_info(f"ytsearch50:{query}", download=False)
 
         for entry in results['entries']:
-            if entry.get("duration") and entry["duration"] <= 60:
+            if entry.get("duration") and entry["duration"] <= 120:
                 urls.append(entry["url"])
-            
         if urls:
             return random.choice(urls)
         return None
@@ -66,10 +64,7 @@ class shortsRandom(commands.Cog):
 
     @commands.command(name="shorts")
     async def randomShort(self, ctx, *, tag: str):
-
         await ctx.message.add_reaction("<:loading:1372046197573025792>")
-        
-
         video_url = self.get_shorts(tag)
 
         if video_url == None: 
