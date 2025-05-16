@@ -42,3 +42,4 @@ class ArtilheirosCog(commands.Cog):
             await interaction.followup.send(embed=embed, view=view)
 async def setup(bot):
     await bot.add_cog(ArtilheirosCog(bot))
+    await bot.add_cog(JogadoresCog(bot))

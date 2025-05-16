@@ -1,7 +1,8 @@
 import requests 
 import os
-
-
+import aiohttp
+import asyncio
+import aiofiles
 APITOKEN = os.getenv("TMBD_TOKEN")
 def fetch_data(endpoint, filters={}):
     
@@ -22,6 +23,7 @@ def get_items(name):
     #movie_id = filme["results"][0]['id']
     movie_poster = filme["results"][0]['poster_path']
    # print(filme['results'][0])
+
     return movie_poster
 
 
