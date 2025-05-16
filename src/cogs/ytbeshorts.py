@@ -6,7 +6,6 @@ import yt_dlp
 import random
 import logging
 import string
-import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +122,7 @@ class shortsRandom(commands.Cog):
             await ctx.reply(f"<{video_url}>", mention_author=False)
     
         except Exception as e:
-            await ctx.send("Video muito longo!")
+            print(e)
         finally:
             os.remove(video_path)
       

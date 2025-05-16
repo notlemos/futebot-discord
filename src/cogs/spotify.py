@@ -50,9 +50,22 @@ class SpotifyPillow(commands.Cog):
                     
                 # Fontes Escritas do spotify
                 font_nome_user = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 42)
-                font_main = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 48)
-                font_menor = ImageFont.truetype("fonts/Roboto-Regular.ttf", 24)
+                font_main = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 58)
+                font_menor = ImageFont.truetype("fonts/Roboto-Regular.ttf", 34)
                 font_tempo = ImageFont.truetype("fonts/BebasNeue-Regular.otf", 36)
+
+                def cut_text(text, font, max_size):
+                    original = text
+                    while font.getlength(text + "...") > max_size and len(text) > 0:
+                        text = text[:-1]
+                    if text != original:
+                        return text + "..."
+                    return text
+
+                # Largura maxima do texto
+
+                max_largura_texto = 900 - 94 
+
                 # Campos de escrita.
                 
                 user_name = ImageDraw.Draw(image)
@@ -68,15 +81,22 @@ class SpotifyPillow(commands.Cog):
                 
                 user_name.text((492,352), f"{user.name}'s spotify", font=font_nome_user, fill=(250,250,250))
                 
-               
-                music_name.text((88, 520), "Music", font=font_main, fill=(250,250,250))
-                music_name.text((94, 590), activity.title, font=font_menor, fill=(250,250,250))
+                # Campo da musica
+                music_name.text((88, 500), "Music", font=font_main, fill=(250,250,250))
+                music_title = cut_text(activity.title, font_menor, max_largura_texto)
+                music_name.text((94, 580), music_title, font=font_menor, fill=(250,250,250))
 
-                album_name.text((88, 660), "Album", font=font_main, fill=(250,250,250))
-                album_name.text((94, 730), activity.album, font=font_menor, fill=(250,250,250))
+                # Campo do album
+
+                album_name.text((88, 650), "Album", font=font_main, fill=(250,250,250))
+                album_title = cut_text(activity.album, font_menor, max_largura_texto)
+                album_name.text((94, 730), album_title, font=font_menor, fill=(250,250,250))
+
+                # Campo do artista
 
                 artists_name.text((88, 800), "Artists", font=font_main, fill=(250,250,250))
-                artists_name.text((94, 870), activity.artist, font=font_menor, fill=(250,250,250))
+                artist_title = cut_text(activity.artist, font_menor, max_largura_texto)
+                artists_name.text((94, 880), artist_title, font=font_menor, fill=(250,250,250))
                                                 
                 
                 
@@ -93,7 +113,7 @@ class SpotifyPillow(commands.Cog):
                 
                 image.paste(capa, (pos_x, pos_y), capa)
 
-                image.save("/tmp/spotify_card.png", format="png", optimize=True)
+                image.save("/tmp/spotify_card.png", format="PNG")
                 file = discord.File("/tmp/spotify_card.png", filename="spotify_card.png")
                 await ctx.send(file=file)
                 os.remove("/tmp/spotify_card.png")
