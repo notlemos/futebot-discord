@@ -1,7 +1,7 @@
 import discord
 import sqlite3
 import os
-from apicalls.tmdbAPI import get_items
+from apicalls.tmdbAPI import fetch_data
 import logging
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ class FilmesView(discord.ui.View):
         embed.add_field(name=f"**Nota do {os.getenv("NAME1")}:**", value=f"{stars(nota1)}", inline=False)
         embed.add_field(name=f"**Nota da {os.getenv("NAME2")}:**", value=f"{stars(nota2)}", inline=False)
         
-        url = f'https://image.tmdb.org/t/p/w600_and_h900_bestv2{get_items(filme)}'
+        url = f'https://image.tmdb.org/t/p/w600_and_h900_bestv2{fetch_data(filme)}'
         embed.set_thumbnail(url=url)
         return embed
     
