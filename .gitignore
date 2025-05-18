@@ -193,7 +193,7 @@ cython_debug/
 =======
 <<<<<<< HEAD
 =======
-data/
+*.db
 a.py 
 main.py
 teste.py

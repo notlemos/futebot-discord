@@ -17,7 +17,7 @@ class SpotifyPillow(commands.Cog):
     @commands.command(name="spotify")
     async def spotify(self, ctx, user: discord.Member = None):
         user = user or ctx.author 
-        image = Image.open('backgrounds/spotifybg.png').convert("RGBA")
+        image = Image.open('imgs/spotifybg.png').convert("RGBA")
         
 
         for activity in user.activities:
