@@ -3,7 +3,7 @@ from discord.ext import commands
 import aiohttp
 import io
 from scraping.letterboxd import getWatchList, getIdMovie, getProfile
-from apicalls.tmdbAPI import fetch_data
+from api.tmdbAPI import fetch_data
 import sqlite3
 import time
 
@@ -28,7 +28,7 @@ class randomMovieCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="randomwl")
+    @commands.command(name="randomwl", aliases=['rwl'])
     async def letterboxdwl(self, ctx, *, user: str = None):
         
 
@@ -65,7 +65,7 @@ class randomMovieCog(commands.Cog):
             title=f"**{name}**",
             url=link,
             description="*• Foi o filme escolhido!*",
-            color=discord.Color(0x000080)
+            color = discord.Color(0x000c7c)
         )
      
         
@@ -74,6 +74,34 @@ class randomMovieCog(commands.Cog):
         await ctx.send(embed=embed)
         
         return
-                   
+    
+    @commands.command(name='rm')
+    async def top250random(self, ctx):
+        def getRandom(db='src/data/top250.db'):
+            conn = sqlite3.connect(db)
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT * FROM filmes ORDER BY RANDOM() LIMIT 1;')
+            movie = cursor.fetchone()
+            return movie 
+        movie = getRandom()
+        if movie:
+            position = movie[0]
+            name = movie[1]
+            link = movie[2]
+            id_tmdb = movie[3]
+            
+
+            poster = fetch_data(id_tmdb)
+            embed  = discord.Embed(
+                title=f"**{position} - {name}**",
+                url=link,
+                description="*• Foi o filme escolhido!*",
+                color = discord.Color(0x202830)
+
+            )
+            embed.set_image(url=f"https://image.tmdb.org/t/p/w600_and_h900_bestv2{poster}")
+            embed.set_footer(text="Official Top 250 Narrative 👑", icon_url="https://a.ltrbxd.com/logos/letterboxd-mac-icon.png")
+            await ctx.send(embed=embed)
 async def setup(bot):
     await bot.add_cog(randomMovieCog(bot))

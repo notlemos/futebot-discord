@@ -194,6 +194,7 @@ cython_debug/
 <<<<<<< HEAD
 =======
 *.db
+!top250.db
 a.py 
 main.py
 teste.py
