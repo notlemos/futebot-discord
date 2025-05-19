@@ -1,7 +1,7 @@
 import discord
 import sqlite3
 import os
-from apicalls.tmdbAPI import fetch_data
+from api.tmdbAPI import fetch_data
 import logging
 logger = logging.getLogger(__name__)
 

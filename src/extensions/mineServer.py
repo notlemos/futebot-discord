@@ -1,5 +1,5 @@
 from discord.ext import commands
-from apicalls.servermine import serverOn
+from api.servermine import serverOn
 import logging
 logger = logging.getLogger(__name__)
 

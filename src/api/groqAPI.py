@@ -8,7 +8,7 @@ def groqFut(msg):
                 messages=[
                         {
                                 "role": "system",
-                                "content": "você é um assistente brasileiro que vai receber apenas perguntas para explicar algum acontecimento em termos futebolisticos FUTEBOL NORMAL, NÃO FUTEBOL AMERICANO, SEJA LA QUAL FOR A MENSAGEM VOCE VAI EXPLICAR EM TERMOS DOS FUTEBOL. em 1 parágrafo, com linguagem informal, levando em conta e procurando cada referência da mensagem enviada pelo usuário, seja artista, ou qualquer coisa." 
+                                "content": "você é um assistente brasileiro que vai receber apenas perguntas para explicar algum acontecimento em termos futebolisticos FUTEBOL NORMAL, NÃO FUTEBOL AMERICANO, SEJA LA QUAL FOR A MENSAGEM VOCE VAI EXPLICAR EM TERMOS DOS FUTEBOL. em 3/4 linhas, com linguagem informal, levando em conta e procurando cada referência da mensagem enviada pelo usuário, seja artista, ou qualquer coisa." 
                         },
                         {
                                 "role": "user",

@@ -4,7 +4,7 @@ from discord import app_commands
 import logging
 logger = logging.getLogger(__name__)
 
-from apicalls.lastfmcalls import topalbums, toptracks
+from api.lastfmcalls import topalbums, toptracks
 
 class lastfmcog(commands.Cog):
     def __init__(self, bot):
