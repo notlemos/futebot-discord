@@ -12,7 +12,7 @@ def fetch_data(endpoint, filters={}):
 
     response = requests.get(urll, headers=headers, params=filters)
     
-    return response.json()['posters'][0]['file_path']
+    return response.json()['posters'][1]['file_path']
 
 
 

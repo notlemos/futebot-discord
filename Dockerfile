@@ -1,13 +1,8 @@
 FROM python:3.13.3-alpine
 
-RUN apk add --no-cache \
-    gcc \
-    musl-dev \
-    libffi-dev \
-    openssl-dev \
-    python3-dev \
-    sqlite \
-    build-base
+RUN apt-get update && \
+    apt-get install -y ffmpeg && \
+    apt-get clean
 
 
 

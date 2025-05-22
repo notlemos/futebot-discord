@@ -17,7 +17,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 logger = logging.getLogger(__name__)
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="%", intents=intents)
-
+bot.remove_command("help")
 @bot.event
 async def on_ready():
     logger.info(f"Bot logged as {bot.user}")
@@ -26,11 +26,11 @@ async def on_ready():
 
 async def main():
     async with bot:
-        ext_path = pathlib.Path("src/cogs")
+        ext_path = pathlib.Path("src/extensions")
         for file in ext_path.glob("*.py"):
             if file.name.startswith("__"):
                 continue
-            module = f"cogs.{file.stem}"
+            module = f"extensions.{file.stem}"
             try:
                 await bot.load_extension(module)
                 logger.info(f"Extension carregada: {module}")

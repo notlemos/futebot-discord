@@ -1,14 +1,9 @@
 import discord
 from discord.ext import commands
-import aiohttp
-import io
 from scraping.letterboxd import getWatchList, getIdMovie, getProfile
 from api.tmdbAPI import fetch_data
 import sqlite3
 import time
-
-
-
 
 
 conn = sqlite3.connect("src/data/users.db")
@@ -20,17 +15,13 @@ c.execute('''
     )
 ''')
 conn.commit()
-
-
-
-
 class randomMovieCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(name="randomwl", aliases=['rwl'])
     async def letterboxdwl(self, ctx, *, user: str = None):
-        
+        start = time.time()
 
         discordId = str(ctx.author.id)
         if user:
@@ -71,6 +62,9 @@ class randomMovieCog(commands.Cog):
         
         embed.set_image(url=poster_url)
         embed.set_footer(text=savedUser, icon_url=avatar)
+        end = time.time()
+
+        print(f"{end - start:.2f} s")
         await ctx.send(embed=embed)
         
         return

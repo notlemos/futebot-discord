@@ -197,7 +197,10 @@ cython_debug/
 !top250.db
 a.py 
 main.py
+saida.csv
 teste.py
 database.db/
+scrapTeste.py
+teste.py
 >>>>>>> 7204e97 (FIRST COMMIT)
 >>>>>>> e7a33db (First Commit)
