@@ -196,6 +196,7 @@ cython_debug/
 *.db
 !top250.db
 saida.csv
+scrapTeste.py
 a.py 
 main.py
 saida.csv
