@@ -1,7 +1,7 @@
 import discord 
 from discord.ext import commands 
 from api.groqAPI import groqFut, groqPop, groqResenhemetro, groqVar
-
+from api.gemini import geminiVar
 
 class GroqCommandsCog(commands.Cog):
     def __init__(self, bot):
@@ -26,7 +26,7 @@ class GroqCommandsCog(commands.Cog):
             for message in reversed(messages)
             if message.author.display_name != 'futebot' and not message.content.startswith('%')
         ]
-        varCheck = groqVar(contents)
+        varCheck = geminiVar(contents)
         
         await ctx.send(varCheck)
     @commands.command(name="resenhometro")

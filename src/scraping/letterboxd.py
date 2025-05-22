@@ -74,3 +74,66 @@ def getProfile(user):
     return img
 
 
+def get():
+    all_data = []
+    for j in range(1,4):
+        url = f"https://letterboxd.com/dave/list/official-top-250-narrative-feature-films/page/{j}/"
+        respose = requests.get(url=url, headers=headers)
+        
+        if respose.status_code != 200:
+            return 'error'
+        
+        soup = BeautifulSoup(respose.text, 'html.parser')
+        li = soup.find_all("li", class_="poster-container numbered-list-item")
+
+        for i in li:
+            div = i.find('div', class_="really-lazy-load poster film-poster linked-film-poster")
+            if not div:
+                continue
+            target = div.get("data-target-link") 
+            name = div.find("img").get('alt')
+
+            link = "https://letterboxd.com" + target
+
+
+            #d = getIdMovie(link)    
+            
+
+            all_data.append({
+                'position': len(all_data)+1,
+                'name': name,
+                'link': link,
+                #'id': id,
+            })
+            if len(all_data) >= 250:
+                return all_data
+    return all_data
+        
+
+
+def getRandomList(link):
+    pool = list(range(1,9))
+    movies = []
+    while pool:
+        page_number = random.choice(pool)
+        url = f"{link}" + f"page/{page_number}/" 
+        print(url)
+        response = requests.get(url, headers=headers)
+        pool.remove(page_number)
+
+        if response.status_code != 200:
+            continue
+        soup = BeautifulSoup(response.text, 'html.parser')
+        div = soup.find_all("div", class_="really-lazy-load poster film-poster linked-film-poster")
+        if not div:
+            continue
+        for filme in div:
+            target = filme.get("data-target-link")
+            name = filme.find("img").get('alt')
+            if target and name:
+                movies.append({
+                    'name': name,
+                    'target': target
+                })
+    return movies
+

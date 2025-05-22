@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-from src.utils.db import DBFute
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"
@@ -72,8 +71,5 @@ def getRodada():
             id_jogo = 1
     return matches
 
-def att_db():
-    db = DBFute()
-    jogos = getRodada()
-    db._create_table()
-    db.inserir_jogos(jogos)
+
+
