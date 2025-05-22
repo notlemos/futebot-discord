@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-
+from src.utils.db import DBFute
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"
@@ -31,3 +31,49 @@ def getTabela():
     
         
     return times, pontos
+
+def getRodada():
+    url = 'https://p1.trrsf.com/api/musa-soccer/ms-standings-games-light?idChampionship=1436&idPhase=&language=pt-BR&country=BR&nav=N&timezone=BR'  # coloca aqui a URL que você quer extrair
+
+    response = requests.get(url)
+    html = response.text
+
+    soup = BeautifulSoup(html, 'html.parser')
+    jogos = soup.select('li.match')
+    rodada_num = 1
+    id_jogo = 1
+    matches = []
+    for match in jogos:
+        
+        away_team = match.select_one('.shield.away')['title']
+        home_team = match.select_one('.shield.home')['title']
+
+        away_goals = match.select_one('strong.goals.away')
+        home_goals = match.select_one('strong.goals.home')
+            
+        data = match.select_one('strong.time.sports-date-gmt.date-manager')
+
+        home_goals_next = home_goals.text.strip() if home_goals else '-'
+        away_goals_next = away_goals.text.strip() if away_goals else '-'
+        data_next = data.text.strip() if data else '-'
+        
+        matches.append({
+            'Rodada': rodada_num,
+            'id_jogo': id_jogo,
+            'Mandante': home_team,
+            'Visitante': away_team,
+            'Gols Mandante': home_goals_next,
+            'Gols Visitante': away_goals_next,
+            'Data': data_next
+        })
+        id_jogo += 1
+        if id_jogo > 10:
+            rodada_num += 1
+            id_jogo = 1
+    return matches
+
+def att_db():
+    db = DBFute()
+    jogos = getRodada()
+    db._create_table()
+    db.inserir_jogos(jogos)
