@@ -195,6 +195,7 @@ cython_debug/
 =======
 *.db
 !top250.db
+saida.csv
 a.py 
 main.py
 saida.csv
