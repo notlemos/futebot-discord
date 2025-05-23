@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
-
+from datetime import datetime
+from utils.db import DBFute
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"
 }
@@ -55,7 +56,18 @@ def getRodada():
         home_goals_next = home_goals.text.strip() if home_goals else '-'
         away_goals_next = away_goals.text.strip() if away_goals else '-'
         data_next = data.text.strip() if data else '-'
+        ano = datetime.now().year
         
+        data_sem_dia = data_next[4:]  
+
+        
+        data_corrigida = data_sem_dia.replace("h", ":")  
+
+        
+        data_completa = f"{data_corrigida}/{ano}"  
+
+        
+        data_formatada = datetime.strptime(data_completa, "%d/%m %H:%M/%Y")
         matches.append({
             'Rodada': rodada_num,
             'id_jogo': id_jogo,
@@ -63,7 +75,7 @@ def getRodada():
             'Visitante': away_team,
             'Gols Mandante': home_goals_next,
             'Gols Visitante': away_goals_next,
-            'Data': data_next
+            'Data': data_formatada
         })
         id_jogo += 1
         if id_jogo > 10:

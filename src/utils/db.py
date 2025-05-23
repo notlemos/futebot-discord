@@ -87,22 +87,65 @@ class DBFute:
         with sqlite3.connect("src/data/brasileirao.db") as conn:
             cursor = conn.cursor()
             for jogo in jogos:
-                cursor.execute('''
-                    INSERT OR REPLACE INTO jogos
-                    (rodada, id_jogo, mandante, visitante, gols_mandante, gols_visitante, data)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                ''', (
-                    jogo['Rodada'],
-                    jogo['id_jogo'],
-                    jogo['Mandante'],
-                    jogo['Visitante'],
-                    jogo['Gols Mandante'],
-                    jogo['Gols Visitante'],
-                    jogo['Data']
-                ))
-    def get_jogo_by_rodada(rodada):
+                cursor.execute("""
+                    SELECT 1 FROM jogos
+                    WHERE rodada = ? AND mandante = ? AND visitante = ?
+                """, (jogo['Rodada'], jogo['Mandante'], jogo['Visitante']))
+                
+                if cursor.fetchone():
+                    cursor.execute('''
+                        UPDATE jogos SET
+                            id_jogo = ?, gols_mandante = ?, gols_visitante = ?, data = ?
+                        WHERE rodada = ? AND mandante = ? AND visitante = ?
+                    ''', (
+                        jogo['id_jogo'],
+                        jogo['Gols Mandante'],
+                        jogo['Gols Visitante'],
+                        jogo['Data'],
+                        jogo['Rodada'],
+                        jogo['Mandante'],
+                        jogo['Visitante']
+                    ))
+                else:
+                    cursor.execute('''
+                        INSERT INTO jogos
+                        (rodada, id_jogo, mandante, visitante, gols_mandante, gols_visitante, data)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ''', (
+                        jogo['Rodada'],
+                        jogo['id_jogo'],
+                        jogo['Mandante'],
+                        jogo['Visitante'],
+                        jogo['Gols Mandante'],
+                        jogo['Gols Visitante'],
+                        jogo['Data']
+                    ))
+            conn.commit()
+    def get_jogo_by_rodada(self,rodada):
         with sqlite3.connect("src/data/brasileirao.db") as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM jogos WHERE rodada = ?", (rodada,))
-            resultado = cursor.fetchall
+            resultado = cursor.fetchall()
+            return resultado 
+        
+    def get_jogos(self, data_inicio, data_fim):
+         with sqlite3.connect("src/data/brasileirao.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM jogos WHERE strftime('%m-%d', data)  BETWEEN ? AND ?", 
+            (data_inicio, data_fim,))
+            resultado = cursor.fetchall()
             return resultado
+         
+    def get_next_empty_round(self):
+        with sqlite3.connect("src/data/brasileirao.db") as conn:
+            cursor = conn.cursor()
+        cursor.execute('''SELECT rodada FROM jogos WHERE gols_mandante = '' AND gols_visitante = '' LIMIT 1 ''') 
+        resultado = cursor.fetchone()
+        return resultado
+    
+    def get_next_round(self):
+        with sqlite3.connect("src/data/brasileirao.db") as conn:
+            cursor = conn.cursor()
+        cursor.execute('''SELECT rodada FROM jogos WHERE gols_mandante != '' AND gols_visitante != '' ORDER BY rodada DESC LIMIT 1 ''') 
+        resultado = cursor.fetchone()
+        return resultado
