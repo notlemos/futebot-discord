@@ -29,6 +29,7 @@ async def on_ready():
 async def main():
     async with bot:
         try:
+            DBFute()._create_table()
             DBFute().inserir_jogos(getRodada())
         except Exception as e:
             print(e)
