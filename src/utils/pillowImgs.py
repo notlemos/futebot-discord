@@ -3,10 +3,13 @@ from utils.db import DBFute, DBTabela
 from utils.formatters import ShortCuts
 
 
-def pillow():
+def pillow(user):
             db = DBFute()
-            rodada = list(DBFute().get_next_empty_round())[0]
-            jogos = db.get_jogo_by_rodada(rodada)
+            db_tabela = DBTabela()
+            try:
+                jogos = db.get_jogo_by_rodada(db_tabela.get_rodada(user)[0])
+            except:
+                jogos = db.get_jogo_by_rodada(db_tabela.get_rodada('TODOS')[0])
 
             image = Image.open('imgs/rodada.png').convert("RGBA")
             draw = ImageDraw.Draw(image)

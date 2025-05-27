@@ -17,21 +17,22 @@ class TesteComando(commands.Cog):
         user = str(ctx.author.id)
         tabela = DBTabela()
         
-        # Criar tabela personalizada do usuário
-        tabela._create_table(user)
+      
+        if not tabela.get_tabela(user):
+            tabela._create_table(user)
 
-        # Preencher com dados iniciais
-        for entry in getTabela_user():
-            tabela.inserir_times(
-                entry["Time"],
-                entry["Sigla"],
-                entry["Pontos"],
-                0,  # 👈 posição inicial zerada
-                user
-            )
+            for entry in getTabela_user():
+                tabela.inserir_times(
+                    entry["Time"],
+                    entry["Sigla"],
+                    entry["Pontos"],
+                    0,  
+                    10,
+                    user
+                )
 
 
-        # Processar resultados
+       
         resList = [p.strip() for p in resultados.split(',')]
         
         rodada = self.db.get_next_empty_round()[0]
@@ -51,16 +52,30 @@ class TesteComando(commands.Cog):
                 print(f"[V] {away} venceu {home}")
                 tabela.atualizar_pontos(away, 'V', user)
 
-            
-        # Reordenar posições
         tabela.reorder_positions(user)
-
+        tabela.incrementar_rodada(user)
         await ctx.send('Simulação aplicada com sucesso!')
 
+    @commands.command(name="excluitabela")
+    async def deltabela(self, ctx):
+        user = ctx.author.id
+        tabela = DBTabela()
+        tabela.excluir_table(user)
+
+        await ctx.send("Tabela Excluida.")
+    
+    @commands.command(name="start")
+    async def start(self, ctx):
+        user = ctx.author.id
+        tabela = DBTabela()
+        tabela._create_table(user)
+
+        await ctx.send("Tabela Criada. Você pode começar a simular vendo a rodada com %`%rodada`")
 
     @commands.command(name="rodada")
     async def rodada(self, ctx):
-        image = pillow()
+        user = ctx.author.id
+        image = pillow(user)
         file = discord.File(image, filename="rodada.png")
         await ctx.send(file=file)
         os.remove(image)
@@ -80,6 +95,8 @@ class TesteComando(commands.Cog):
                             inline=True)
 
         await ctx.send(embed=embed)
+
+
     @commands.command(name="mytabela")
     async def mytabela(self, ctx):
         user = ctx.author.id
@@ -89,5 +106,7 @@ class TesteComando(commands.Cog):
         file = discord.File(tabela, filename="tabela.png")
         await ctx.send(file=file)
         os.remove(tabela)
+
+
 async def setup(bot):
     await bot.add_cog(TesteComando(bot))

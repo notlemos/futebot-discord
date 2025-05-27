@@ -155,7 +155,7 @@ class DBFute:
             cursor = conn.cursor()
         cursor.execute('''SELECT rodada FROM jogos WHERE gols_mandante != '' AND gols_visitante != '' ORDER BY rodada DESC LIMIT 1 ''') 
         resultado = cursor.fetchone()
-        return resultado
+        return resultado[0]
     
     def get_gols(self):
         with sqlite3.connect("src/data/brasileirao.db") as conn:
@@ -187,34 +187,45 @@ class DBTabela:
                         posicao INTEGER,
                         name TEXT PRIMARY KEY,
                         acronym TEXT,
-                        pontos INTEGER
+                        pontos INTEGER,
+                        rodada INTEGER
                     )
                     '''
                 )
                 conn.commit()
-    def inserir_times(self, time, acronym, pontos, posicao, user):
+    def inserir_times(self, time, acronym, pontos, posicao, rodada, user):
         with self._connect() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 f'''
                 INSERT OR REPLACE INTO tabela_{user}
-                (name, acronym, pontos, posicao)
-                VALUES (?, ?, ?, ?)
+                (name, acronym, pontos, posicao, rodada)
+                VALUES (?, ?, ?, ?, ?)
                 ''',
-                (time, acronym, pontos, posicao)
+                (time, acronym, pontos, posicao, rodada)
             )
             conn.commit()
 
     def get_tabela(self, user):
+        table_name = f"tabela_{user}"
         with self._connect() as conn:
             cursor = conn.cursor()
+
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                (table_name,)
+            )
+
+            if cursor.fetchone() is None:
+                return None
+
             cursor.execute(
                 f'''
-                SELECT name, pontos FROM tabela_{user}
+                SELECT name, pontos, rodada FROM tabela_{user}
             '''
             )
             result = cursor.fetchall()
-        return [dict(row) for row in result]
+            return [dict(row) for row in result]
 
     def excluir_table(self, user):
         with self._connect() as conn:
@@ -222,24 +233,23 @@ class DBTabela:
             cursor.execute(
                 f'''DROP TABLE tabela_{user}'''
             )
+
     def atualizar_pontos(self, time, case, user):
         with self._connect() as conn:
             cursor = conn.cursor()
 
             if case == 'V':
-                
                 cursor.execute(
                     f'''
                         UPDATE tabela_{user}
-                        SET pontos = pontos + ?
+                        SET pontos = pontos + 3
                         WHERE name = ?
-                    ''', (3, time)
+                    ''', (time,)
                 )
 
             elif case == 'E':
                 if isinstance(time, (list, tuple)):
                     for t in time:
-                        
                         cursor.execute(
                             f'''
                             UPDATE tabela_{user}
@@ -247,35 +257,43 @@ class DBTabela:
                             WHERE name = ?
                             ''', (t,)
                         )
-                else:
-                    
-                    cursor.execute(
-                        f'''
-                        UPDATE tabela_{user}
-                        SET pontos = pontos + 1
-                        WHERE name = ?
-                        ''', (time,)
-                    )
             conn.commit()
+
+    def incrementar_rodada(self, user):
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                f'''
+                UPDATE tabela_{user}
+                SET rodada = rodada + 1
+                '''
+            )
+            conn.commit()
+    def get_rodada(self, user):
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                f'''SELECT rodada from tabela_{user}''')
+        response = cursor.fetchone()
+        return response
+
     def reorder_positions(self, user):
         with self._connect() as conn:
             cursor = conn.cursor()
-            # Seleciona os times ordenados pelos pontos (desc) e nome (asc)
+            
             cursor.execute(f'''
-                SELECT name, acronym, pontos FROM tabela_{user}
+                SELECT name, acronym, pontos, rodada FROM tabela_{user}
                 ORDER BY pontos DESC, name ASC
             ''')
             ordenados = cursor.fetchall()
 
-            # Limpa toda a tabela atual
-            cursor.execute(f"DELETE FROM tabela_{user}")
 
-            # Reinsere os times com nova posição
-            for posicao, (name, acronym, pontos) in enumerate(ordenados, start=1):
+            cursor.execute(f"DELETE FROM tabela_{user}")
+            
+            for posicao, (name, acronym, pontos, rodada) in enumerate(ordenados, start=1):
                 cursor.execute(f'''
-                    INSERT INTO tabela_{user} (posicao, name, acronym, pontos)
-                    VALUES (?, ?, ?, ?)
-                ''', (posicao, name, acronym, pontos))
+                    INSERT INTO tabela_{user} (posicao, name, acronym, pontos, rodada)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (posicao, name, acronym, pontos, rodada))
 
             conn.commit()
-            
