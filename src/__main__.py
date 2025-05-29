@@ -5,6 +5,8 @@ import os
 from dotenv import load_dotenv
 import pathlib
 from utils.log import setup_logger
+from utils.db import DBFute
+from scraping.tabelaData import getRodada
 import logging
 
 
@@ -26,6 +28,13 @@ async def on_ready():
 
 async def main():
     async with bot:
+        try:
+            DBFute()._create_table()
+            DBFute().inserir_jogos(getRodada())
+        except Exception as e:
+            print(e)
+
+
         ext_path = pathlib.Path("src/extensions")
         for file in ext_path.glob("*.py"):
             if file.name.startswith("__"):

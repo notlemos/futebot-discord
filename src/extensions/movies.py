@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 allowed_guild_id = 928519278188167208
 
 
+
 class Filmes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot 
