@@ -12,30 +12,29 @@ class TesteComando(commands.Cog):
         self.bot = bot
         self.db = DBFute()
         
-    @commands.command(name="simula")
+    @commands.command(name="simular")
     async def simula(self, ctx, *, resultados: str):
         user = str(ctx.author.id)
         tabela = DBTabela()
-        
-      
-        if not tabela.get_tabela(user):
+        try: 
+            rodada = DBTabela().get_rodada(user)
+        except:
             tabela._create_table(user)
-
-            for entry in getTabela_user():
+            for entry in DBTabela().get_tabela('TODOS'):
                 tabela.inserir_times(
-                    entry["Time"],
-                    entry["Sigla"],
-                    entry["Pontos"],
+                    entry["name"],
+                    entry["acronym"],
+                    entry["pontos"],
                     0,  
-                    10,
+                    entry['rodada'],
                     user
                 )
 
 
-       
+
         resList = [p.strip() for p in resultados.split(',')]
-        
-        rodada = self.db.get_next_empty_round()[0]
+        rodada_row = DBTabela().get_rodada(user)
+        rodada = rodada_row["rodada"]
         jogos = list(self.db.get_jogo_by_rodada(rodada))
 
         for jogo, res in zip(jogos, resList):
@@ -43,13 +42,13 @@ class TesteComando(commands.Cog):
             home, away = jogo[3], jogo[5]  # Mandante e visitante
 
             if gm > gv:
-                print(f"[V] {home} venceu {away}")
+                
                 tabela.atualizar_pontos(home, 'V', user)
             elif gm == gv:
-                print(f"[E] {home} empatou com {away}")
+                
                 tabela.atualizar_pontos((home, away), 'E', user)
             elif gv > gm:
-                print(f"[V] {away} venceu {home}")
+                
                 tabela.atualizar_pontos(away, 'V', user)
 
         tabela.reorder_positions(user)
