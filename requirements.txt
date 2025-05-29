@@ -5,3 +5,4 @@ groq
 pillow
 python-dotenv
 colorlog
+yt-dlp
