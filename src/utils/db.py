@@ -130,6 +130,7 @@ class DBFute:
             conn.commit()
     def get_jogo_by_rodada(self,rodada):
         with sqlite3.connect("src/data/brasileirao.db") as conn:
+            conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM jogos WHERE rodada = ?", (rodada,))
             resultado = cursor.fetchall()
@@ -221,7 +222,7 @@ class DBTabela:
 
             cursor.execute(
                 f'''
-                SELECT name, pontos, rodada FROM tabela_{user}
+                SELECT name, pontos, acronym, rodada FROM tabela_{user}
             '''
             )
             result = cursor.fetchall()
