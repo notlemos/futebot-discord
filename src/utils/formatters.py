@@ -2,14 +2,14 @@ class ShortCuts:
     def __init__(self, jogos):
         self.jogos = jogos
     def mandante(self):
-        return self.jogos[3]
+        return self.jogos["mandante"]
     def visitante(self):
-        return self.jogos[5]
+        return self.jogos["visitante"]
     def golVisitante(self):
-        return self.jogos[6]
+        return self.jogos["gols_visitante"]
     def golMandante(self):
-        return self.jogos[7]
+        return self.jogos["gols_mandante"]
     def siglaMandante(self):
-        return self.jogos[2]
+        return self.jogos["sigla_mandante"]
     def siglaVisitante(self):
-        return self.jogos[4]
+        return self.jogos["sigla_visitante"]

@@ -7,12 +7,12 @@ from utils.formatters import ShortCuts
 import os 
 from scraping.tabelaData import getRodada, getTabela_user
 
-class TesteComando(commands.Cog):
+class Simulate(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.db = DBFute()
         
-    @commands.command(name="simular")
+    @commands.command(name="palpite")
     async def simula(self, ctx, *, resultados: str):
         user = str(ctx.author.id)
         tabela = DBTabela()
@@ -55,7 +55,7 @@ class TesteComando(commands.Cog):
         tabela.incrementar_rodada(user)
         await ctx.send('Simulação aplicada com sucesso!')
 
-    @commands.command(name="excluitabela")
+    @commands.command(name="delete")
     async def deltabela(self, ctx):
         user = ctx.author.id
         tabela = DBTabela()
@@ -80,10 +80,9 @@ class TesteComando(commands.Cog):
         os.remove(image)
 
         
-    @commands.command(name="rodadares")
-    async def resultados(self, ctx):
-        rodada = list(DBFute().get_next_round())[0]
-        jogos = self.db.get_jogo_by_rodada(rodada)
+    @commands.command(name="resultados")
+    async def resultados(self, ctx, rodada):
+        jogos = list(self.db.get_jogo_by_rodada(rodada))
 
         embed = discord.Embed(title=f"JOGOS DA RODADA {rodada}")
 
@@ -99,13 +98,14 @@ class TesteComando(commands.Cog):
     @commands.command(name="mytabela")
     async def mytabela(self, ctx):
         user = ctx.author.id
-        tabela = pillowTabela(user)
-        if not tabela:
-            await ctx.send("NÃO POSSUI SIMULAÇÃO DE TABELA AINDA.")
+        try:
+            tabela = pillowTabela(user)
+        except:
+            await ctx.send("`%start` para iniciar uma tabela.")
         file = discord.File(tabela, filename="tabela.png")
         await ctx.send(file=file)
         os.remove(tabela)
 
 
 async def setup(bot):
-    await bot.add_cog(TesteComando(bot))
+    await bot.add_cog(Simulate(bot))

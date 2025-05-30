@@ -133,8 +133,8 @@ class DBFute:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM jogos WHERE rodada = ?", (rodada,))
-            resultado = cursor.fetchall()
-            return resultado 
+            resultados = cursor.fetchall()
+            return [dict(resultado) for resultado in resultados]
         
     def get_jogos(self, data_inicio, data_fim):
          with sqlite3.connect("src/data/brasileirao.db") as conn:

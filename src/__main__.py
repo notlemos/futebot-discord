@@ -19,7 +19,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 logger = logging.getLogger(__name__)
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="%", intents=intents)
-bot.remove_command("help")
+
 @bot.event
 async def on_ready():
     logger.info(f"Bot logged as {bot.user}")
