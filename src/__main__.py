@@ -7,6 +7,7 @@ import pathlib
 from utils.log import setup_logger
 from utils.db import DBFute
 from scraping.tabelaData import getRodada
+
 import logging
 
 
@@ -18,7 +19,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 
 logger = logging.getLogger(__name__)
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="%", intents=intents)
+bot = commands.Bot(command_prefix="%", help_command=None, intents=intents )
 
 @bot.event
 async def on_ready():
