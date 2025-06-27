@@ -6,7 +6,7 @@ from utils.pillowImgs import fade, cropImg
 import aiohttp
 import asyncio
 import sqlite3
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
 from io import BytesIO
 import os
 conn = sqlite3.connect("src/data/users.db")
@@ -41,7 +41,7 @@ class LetterboxdPillow(commands.Cog):
             else:
                 await ctx.send("Use o comando uma vez com seu user para salvar.")
                 return
-        font = ImageFont.truetype('fonts/Poppins-SemiBold.ttf', size=18)
+        font = ImageFont.truetype('fonts/Poppins-SemiBold.ttf', size=26)
         image = Image.open('imgs/letterboxd.png').convert('RGBA')
         draw = ImageDraw.Draw(image)
 
@@ -60,20 +60,29 @@ class LetterboxdPillow(commands.Cog):
             image.paste(fade_backdrop, (0, 0), fade_backdrop)
                 
             
-            center_x = 130
+            center_x = 245
 
             bbox = draw.textbbox((0,0), profileName, font=font)
             text_width = bbox[2] - bbox[0]
             x = center_x - text_width // 2
             
 
-            draw.text((x, 50), profileName, fill="#6a7784", font=font)
+            draw.text((x, 265), profileName, fill="#ffffff", font=font)
 
             
             pp_resp = await session.get(profilePic)
             pp_bytes = await pp_resp.read()
             profPic = Image.open(BytesIO(pp_bytes)).convert('RGBA')
-            image.paste(profPic, (30, 77), profPic)
+            
+            
+            mask = Image.new("L", profPic.size, 0)
+            draw = ImageDraw.Draw(mask)
+            draw.ellipse((0, 0, profPic.size[0], profPic.size[1]), fill=255)
+            profPic = profPic.convert("RGBA")
+            circular_img = Image.composite(profPic, Image.new("RGBA", profPic.size, (0, 0, 0, 0)), mask)
+            
+                    
+            image.paste(circular_img, (30, 77),circular_img)
 
             
 
@@ -84,7 +93,7 @@ class LetterboxdPillow(commands.Cog):
             for poster_img in posters:
                 if poster_img:
                     poster_img = poster_img.resize((290, 433), Image.Resampling.LANCZOS)
-                    image.paste(poster_img, (off_set, 391), poster_img)
+                    image.paste(poster_img, (off_set, 408), poster_img)
                     off_set += 308
                     
 

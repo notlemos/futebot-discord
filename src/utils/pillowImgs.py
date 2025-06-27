@@ -166,7 +166,7 @@ def fade(img):
     draw = ImageDraw.Draw(fade_mask)
 
   
-    grad_height = 800
+    grad_height = 900
    
     
     # --- FADE BASE ---

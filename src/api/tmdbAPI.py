@@ -1,5 +1,6 @@
 import requests 
 import os
+from itertools import islice
 APITOKEN = os.getenv("TMBD_TOKEN")
 
 
@@ -15,12 +16,16 @@ async def fetch_data(session, endpoint, media_type):
             return None, None  
         
         data = await response.json()
+
         posters = data.get('posters', [])
         backdrops = data.get('backdrops', [])
-        backdrop = next((b for b in backdrops if b.get('iso_639_1') == None))
-        poster = next((p for p in posters if p.get('iso_639_1') == 'en'), None)
+
+        backdrop = next(islice((b for b in backdrops if b.get('iso_639_1') is None),2 , None), None)
+        poster = next(islice((p for p in posters if p.get('iso_639_1') == 'en'),1 , None),None)
+
         poster_path = poster['file_path'] if poster else None
         backdrop_path = backdrop['file_path'] if backdrop else None
+
         return poster_path, backdrop_path
 
         
