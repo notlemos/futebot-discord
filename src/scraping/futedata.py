@@ -91,7 +91,7 @@ def getEscudo(time):
         return None
 
     soup = BeautifulSoup(response.text, 'html.parser')
-    print(soup)
+    
     # Tenta encontrar o escudo
     escudo = None
     div2 = soup.find('div', class_='logo')
@@ -99,6 +99,7 @@ def getEscudo(time):
         img = div2.find('img')
         if img:
             escudo = img.get('src')
+    
     return escudo
 
 

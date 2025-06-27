@@ -7,17 +7,17 @@ class GroqCommandsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.command(name="explique")
+    @commands.command(name="explique", help="Explain something in football terms.")
     async def explique(self, ctx, *, msg: str):
         resposta = groqFut(msg)
         await ctx.send(resposta)
     
-    @commands.command(name="expliquepop")
+    @commands.command(name="expliquepop", help="Explain something in pop terms")
     async def expliquepop(self, ctx, *, msg: str):
         resposta = groqPop(msg)
         await ctx.send(resposta)
         
-    @commands.command(name="var")
+    @commands.command(name="var", help="See the Video Assistant Referee to see who's right in the discussion.")
     @commands.cooldown(rate=1, per=120, type=commands.BucketType.user)
     async def var(self, ctx):
         messages = [message async for message in ctx.channel.history(limit=20)]

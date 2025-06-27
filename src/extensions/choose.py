@@ -10,7 +10,7 @@ class ChooseCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot 
 
-    @commands.command(name="choose")
+    @commands.command(name="choose", help="Pick a random choice from a list separated by `,` or `ou`")
     async def choose(self, ctx, *, parameter: str):
         if 'ou' in parameter:
             items = [item.strip() for item in parameter.split('ou')]

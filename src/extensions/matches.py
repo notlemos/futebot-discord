@@ -1,7 +1,7 @@
 import discord 
 from discord.ext import commands
 from discord import app_commands 
-from scraping.futedata import getJogos, getPlayers
+from scraping.futedata import getJogos, getPlayers, getEscudo
 import logging
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,8 @@ class JogosView(commands.Cog):
                 value=f'{row['Data']}',
                 inline=False
             )
-        embed.set_thumbnail(url=f"{jogador['Escudo']}")
+        escudo = getEscudo((time))
+        embed.set_thumbnail(url=f"https://www.ogol.com.br{escudo}")
         await interaction.followup.send(embed=embed)
        
 

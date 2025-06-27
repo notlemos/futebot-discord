@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
-from scraping.letterboxd import getWatchList, getIdMovie, getProfile
-from api.tmdbAPI import fetch_data
+from scraping.letterboxd import getWatchList, getIdMovie2, getpic, getRandomList
+from api.tmdbAPI import fetchdata
 import sqlite3
 import time
 
@@ -21,7 +21,7 @@ class randomMovieCog(commands.Cog):
 
     @commands.command(name="randomwl", aliases=['rwl'])
     async def letterboxdwl(self, ctx, *, user: str = None):
-        start = time.time()
+        
 
         discordId = str(ctx.author.id)
         if user:
@@ -42,9 +42,9 @@ class randomMovieCog(commands.Cog):
         name = movie['name']
         target = movie['target']
         link = f"https://letterboxd.com{target}"
-        id_movie = getIdMovie(link)
-        poster = fetch_data(id_movie)
-        avatar = getProfile(savedUser)
+        id_movie = getIdMovie2(link)
+        poster = fetchdata(id_movie)
+        avatar = getpic(savedUser)
 
         
 
@@ -62,9 +62,9 @@ class randomMovieCog(commands.Cog):
         
         embed.set_image(url=poster_url)
         embed.set_footer(text=savedUser, icon_url=avatar)
-        end = time.time()
+        
 
-        print(f"{end - start:.2f} s")
+        
         await ctx.send(embed=embed)
         
         return
@@ -86,7 +86,7 @@ class randomMovieCog(commands.Cog):
             id_tmdb = movie[3]
             
 
-            poster = fetch_data(id_tmdb)
+            poster = fetchdata(id_tmdb)
             embed  = discord.Embed(
                 title=f"**{position} - {name}**",
                 url=link,
@@ -96,6 +96,26 @@ class randomMovieCog(commands.Cog):
             )
             embed.set_image(url=f"https://image.tmdb.org/t/p/w600_and_h900_bestv2{poster}")
             embed.set_footer(text="Official Top 250 Narrative 👑", icon_url="https://a.ltrbxd.com/logos/letterboxd-mac-icon.png")
+            await ctx.send(embed=embed)
+    @commands.command(name='randomList', aliases=['rl'])
+    async def randomlist(self, ctx, link: str):
+        if not link:
+            await ctx.send("Necessário inserir o link de uma lista do letterboxd.")
+        movie = getRandomList(link)
+        if movie:
+            namelist = movie['namelist']
+            name = movie['name']
+            target = movie['link']
+            id = getIdMovie2(target)
+            poster = fetchdata(id)
+            embed = discord.Embed(
+                title=f"{name}",
+                url=target,
+                description="*• Foi o filme escolhido!*",
+                color = discord.Color(0x202830)
+            )
+            embed.set_image(url=f"https://image.tmdb.org/t/p/w600_and_h900_bestv2{poster}")
+            embed.set_footer(text=f"{namelist}", icon_url="https://a.ltrbxd.com/logos/letterboxd-mac-icon.png")
             await ctx.send(embed=embed)
 async def setup(bot):
     await bot.add_cog(randomMovieCog(bot))

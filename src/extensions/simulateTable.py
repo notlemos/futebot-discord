@@ -12,7 +12,7 @@ class Simulate(commands.Cog):
         self.bot = bot
         self.db = DBFute()
         
-    @commands.command(name="palpite")
+    @commands.command(name="palpite", help="Give your guesses to the actual round `%rodada`")
     async def simula(self, ctx, *, resultados: str):
         user = str(ctx.author.id)
         tabela = DBTabela()
@@ -55,7 +55,7 @@ class Simulate(commands.Cog):
         tabela.incrementar_rodada(user)
         await ctx.send('Simulação aplicada com sucesso!')
 
-    @commands.command(name="delete")
+    @commands.command(name="delete", help="Delete your table.")
     async def deltabela(self, ctx):
         user = ctx.author.id
         tabela = DBTabela()
@@ -63,7 +63,7 @@ class Simulate(commands.Cog):
 
         await ctx.send("Tabela Excluida.")
     
-    @commands.command(name="start")
+    @commands.command(name="start", help="Start your table to simulate.")
     async def start(self, ctx):
         user = ctx.author.id
         tabela = DBTabela()
@@ -71,7 +71,7 @@ class Simulate(commands.Cog):
 
         await ctx.send("Tabela Criada. Você pode começar a simular vendo a rodada com %`%rodada`")
 
-    @commands.command(name="rodada")
+    @commands.command(name="rodada", help="See the round you have to simulate")
     async def rodada(self, ctx):
         user = ctx.author.id
         image = pillow(user)
@@ -80,7 +80,7 @@ class Simulate(commands.Cog):
         os.remove(image)
 
         
-    @commands.command(name="resultados")
+    @commands.command(name="resultados", help="Results from the round that you choose.")
     async def resultados(self, ctx, rodada):
         jogos = list(self.db.get_jogo_by_rodada(rodada))
 
@@ -95,7 +95,7 @@ class Simulate(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @commands.command(name="mytabela")
+    @commands.command(name="mytabela", help="Look at your simulated table.")
     async def mytabela(self, ctx):
         user = ctx.author.id
         try:

@@ -1,7 +1,6 @@
 import aiohttp
 from bs4 import BeautifulSoup
 import unicodedata
-import asyncio
 async def horoscope_data(sign):
     
     signo_formated = ''.join(

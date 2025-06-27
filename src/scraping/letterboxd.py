@@ -2,10 +2,15 @@ import requests
 from bs4 import BeautifulSoup 
 import random
 import time
+import re
+import asyncio
+import aiohttp
 headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"
         }
-
+HTML_HEADERS = {
+    "User-Agent": "Mozilla/5.0"
+}
 
 def getWatchList(user):
     pool = list(range(1,20))
@@ -42,37 +47,76 @@ def getWatchList(user):
         return random.choice(names)
 
 
-def getIdMovie(link):
+async def getIdMovie(session, url):
+    async with session.get(url, headers=HTML_HEADERS) as response:
     
-    url = link
-    respose = requests.get(url=url, headers=headers)
-
-    if respose.status_code != 200:
-        return 'error'
     
-    soup = BeautifulSoup(respose.text, 'html.parser')
+
+        if response.status != 200:
+            return None, None 
+        
+        html = await response.text()
+        
+        soup = BeautifulSoup(html, 'html.parser')
 
 
+        tag_p = soup.find("p", class_="text-link text-footer")
+        number = tag_p.find("a", attrs={'data-track-action': 'TMDB'}).get('href')
+        
+        id = number.strip('/').split('/')[-1]
+        filter = number.strip('/').split('/')[-2]
+        
+        return id, filter
+    
+
+def getIdMovie2(url):
+    response = requests.get(url, headers=headers)
+    response = response.text
+    soup = BeautifulSoup(response, 'html.parser')
     tag_p = soup.find("p", class_="text-link text-footer")
-    number = tag_p.find("a", attrs={'data-track-action': 'TMDB'}).get('href')[33:]
+    number = tag_p.find("a", attrs={'data-track-action': 'TMDB'}).get('href')
+        
+    id = number.strip('/').split('/')[-1]
+    filter = number.strip('/').split('/')[-2]
+        
+    return id
 
-    return number.rsplit('/')[0]
 
-def getProfile(user):
+async def getProfile(session, user):
    
     url = f'https://letterboxd.com/{user}'
+    async with session.get(url, headers=HTML_HEADERS) as response:
+
+        if response.status != 200:
+            return None, "Desconhecido"
+
+        html = await response.text()
+        
+
+        soup = BeautifulSoup(html, 'html.parser')
+
+        span = soup.find('span', class_="avatar -a110 -large")
+        img = span.find('img').get('src')
+        nameSpan = soup.find('span', class_="displayname tooltip").get_text()
+        
+        return img, nameSpan
+
+def getpic(user):
+    url = f"https://letterboxd.com/{user}"
     response = requests.get(url, headers=headers)
 
-    if response.status_code != 200:
-        return 
+    html = response.text 
+   
+        
 
-    soup = BeautifulSoup(response.text, 'html.parser')
+    soup = BeautifulSoup(html, 'html.parser')
 
     span = soup.find('span', class_="avatar -a110 -large")
     img = span.find('img').get('src')
-    
+    nameSpan = soup.find('span', class_="displayname tooltip").get_text()
+        
     return img
-
+    
 
 def get():
     all_data = []
@@ -112,28 +156,63 @@ def get():
 
 
 def getRandomList(link):
-    pool = list(range(1,9))
-    movies = []
-    while pool:
-        page_number = random.choice(pool)
-        url = f"{link}" + f"page/{page_number}/" 
-        print(url)
-        response = requests.get(url, headers=headers)
-        pool.remove(page_number)
-
-        if response.status_code != 200:
+    while True:
+        all_data = []
+        page = random.randint(1,8)
+        url = f"{link}/page/{page}/"
+        respose = requests.get(url=url, headers=headers)
+        if respose.status_code != 200:
             continue
-        soup = BeautifulSoup(response.text, 'html.parser')
-        div = soup.find_all("div", class_="really-lazy-load poster film-poster linked-film-poster")
-        if not div:
+            
+        soup = BeautifulSoup(respose.text, 'html.parser')
+            
+        li = soup.find_all("li", class_="poster-container")
+        if not li:
             continue
-        for filme in div:
-            target = filme.get("data-target-link")
-            name = filme.find("img").get('alt')
-            if target and name:
-                movies.append({
-                    'name': name,
-                    'target': target
-                })
-    return movies
+        nameList = soup.find("h1", class_="title-1 prettify has-notes")
+        if nameList:
+            nameList = nameList.text 
+        else:
+            nameList = soup.find("h1", class_="title-1 prettify").text
+        
+        for i in li:
+            div = i.find('div', class_="really-lazy-load poster film-poster linked-film-poster")
+            if not div:
+                continue
+            target = div.get("data-target-link") 
+            
+            name = div.find("img").get('alt')
+            link = "https://letterboxd.com" + target
+        
+            
+            all_data.append({
+                'namelist': nameList,
+                'name': name,
+                'link': link,
+                
+            })
+        return random.choice(all_data)
+def getFavs(user):
+   
+    url = f'https://letterboxd.com/{user}'
+    response = requests.get(url, headers=headers)
 
+    if response.status_code != 200:
+        return 
+    
+    soup = BeautifulSoup(response.text, 'html.parser')
+    movies = soup.select('li.poster-container.favourite-film-poster-container')
+    favs = []
+    targets = []
+    all_data = []
+    for movie in movies:
+        target = movie.select_one('div.really-lazy-load.poster.film-poster.linked-film-poster').get('data-details-endpoint')
+        fav = movie.select_one('img').get('alt')
+        favs.append(fav)
+        targets.append("https://letterboxd.com" + target[:-5])
+    for targett, filme in zip(targets, favs):
+        all_data.append({
+            'filme': filme,
+            'target': targett
+        })   
+    return all_data
