@@ -6,3 +6,5 @@ pillow
 python-dotenv
 colorlog
 yt-dlp
+cachetools
+pylast

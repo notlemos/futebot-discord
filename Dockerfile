@@ -1,10 +1,7 @@
 FROM python:3.13.3-alpine
 
-RUN apt-get update && \
-    apt-get install -y ffmpeg && \
-    apt-get clean
-
-
+RUN apk update && \
+    apk add --no-cache ffmpeg
 
 WORKDIR /app
 
@@ -15,4 +12,5 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "-m", "src"]
+CMD ["python", "src/__main__.py"]
+

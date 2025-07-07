@@ -8,4 +8,4 @@ services:
     working_dir: /app
     env_file:
       - .env
-    command: python -m src
+    command: python src/__main__.py
