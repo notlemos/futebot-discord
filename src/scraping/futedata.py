@@ -235,7 +235,7 @@ def getTransfers(time):
         soup = BeautifulSoup(response.text, 'html.parser')
         li = soup.find_all('li', class_='TransferCardsList_transferCard__ZGCh4')
         timeEscudo = getPlayers(time)
-        escudo = timeEscudo[0]['Escudo']
+        escudoLink = timeEscudo[0]['Escudo']
         
         if li:
             for item in li:
@@ -302,7 +302,7 @@ def getTransfers(time):
                     
                     
             #  Adicionando os parametros no all_data
-            
+            escudo = f"https://ogol.com.br/{escudoLink}"
             
             for data, name, pos, team1, team2, preco in zip(transfersDates, transfersNames, transfersPositions, originTeam, currentTeam, transfersPrice):
                     all_data.append({
