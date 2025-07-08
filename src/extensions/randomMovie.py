@@ -50,7 +50,7 @@ class randomMovieCog(commands.Cog):
 
    
         poster_url = f"https://image.tmdb.org/t/p/w600_and_h900_bestv2{poster}"
-      
+        
 
         embed = discord.Embed(
             title=f"**{name}**",

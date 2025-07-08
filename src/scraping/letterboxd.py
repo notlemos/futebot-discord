@@ -98,8 +98,11 @@ async def getProfile(session, user):
         span = soup.find('span', class_="avatar -a110 -large")
         img = span.find('img').get('src')
         nameSpan = soup.find('span', class_="displayname tooltip").get_text()
-        
-        return img, nameSpan
+        try:
+            patron = soup.find('span', class_="badge -patron").get_text()
+        except:
+            patron = None
+        return img, nameSpan, patron
 
 def getpic(user):
     url = f"https://letterboxd.com/{user}"
@@ -215,4 +218,30 @@ def getFavs(user):
             'filme': filme,
             'target': targett
         })   
+    return all_data
+def getLastFourWatched(user):
+    url = f'https://letterboxd.com/{user}' 
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code != 200:
+        return 
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    movies = soup.select('li.poster-container.viewing-poster-container')
+    
+    lastFourWatched = []
+    targets = []
+    all_data = []
+
+    for movie in movies:
+        target = movie.select_one('div.really-lazy-load.poster.film-poster.linked-film-poster').get('data-details-endpoint')
+        last = movie.select_one('img').get('alt')
+        lastFourWatched.append(last)
+        
+        targets.append("https://letterboxd.com" + target[:-5])
+    for targett, filme in zip(targets, lastFourWatched):
+        all_data.append({
+            'filme': filme, 
+            'target': targett
+        })
     return all_data
