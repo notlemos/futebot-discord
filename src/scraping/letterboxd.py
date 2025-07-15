@@ -245,3 +245,49 @@ def getLastFourWatched(user):
             'target': targett
         })
     return all_data
+
+async def getpagesreviews(user, session):
+    url = f'https://letterboxd.com/{user}/films/reviews/'
+    async with session.get(url, headers=headers) as response:
+
+        if response.status != 200:
+            return 1
+        
+        html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser') 
+
+        pages = soup.find_all('li', class_="paginate-page")
+        if not pages:
+            return 1
+        try:
+            return int(pages[-1].get_text())
+        except:
+            return 1 
+        
+        
+
+
+
+
+async def randomreview(user, session):
+    number = await getpagesreviews(user, session)
+    page = random.randint(1, number)
+    url = f"https://letterboxd.com/{user}/films/reviews/page/{page}/"
+    async with session.get(url, headers=headers) as response:
+        
+        
+
+        if response.status!= 200:
+            return 1
+        
+        html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser') 
+        reviews = soup.find_all('div', class_="listitem js-listitem")
+        if not reviews:
+            return 'NO REVIEWS'
+        chosen = random.choice(reviews)
+        review = chosen.find('p').get_text()
+        movie_link = "https://letterboxd.com" + chosen.find('h2', class_="name -primary prettify").find('a').get('href')
+        movie_name = chosen.find('h2', class_="name -primary prettify").find('a').get_text()
+
+        return review, movie_link, movie_name
