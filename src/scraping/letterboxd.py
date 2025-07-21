@@ -286,8 +286,13 @@ async def randomreview(user, session):
         if not reviews:
             return 'NO REVIEWS'
         chosen = random.choice(reviews)
-        review = chosen.find('p').get_text()
+        review = chosen.find('div', class_='body-text -prose -reset js-review-body js-collapsible-text').get_text()        
         movie_link = "https://letterboxd.com" + chosen.find('h2', class_="name -primary prettify").find('a').get('href')
         movie_name = chosen.find('h2', class_="name -primary prettify").find('a').get_text()
+        date = chosen.find('span', class_='releasedate').find('a').get_text()
+        rating = chosen.find('span', class_='content-reactions-strip -viewing').find('span').get_text()
+        dateLog = chosen.find('span', class_='date').find('time').get_text()
 
-        return review, movie_link, movie_name
+        return review, movie_link, movie_name, date, rating, dateLog
+
+        

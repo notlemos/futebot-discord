@@ -24,7 +24,7 @@ class GuessTheReviewCog(commands.Cog):
         self.bot = bot 
     
     @commands.command(name="guessthereview", aliases=['gtr'])
-    @commands.cooldown(rate=1, per=5, type=commands.BucketType.user)
+    @commands.cooldown(rate=1, per=15, type=commands.BucketType.channel)
     async def guessthereview(self, ctx, *, user: str = None):
 
         discordId = str(ctx.author.id)
@@ -41,10 +41,10 @@ class GuessTheReviewCog(commands.Cog):
                 await ctx.send("Use o comando uma vez com seu user para salvar.")
                 return
             
-            async with aiohttp.ClientSession() as session:
-                review, link, nome = await randomreview(savedUser, session)
+        async with aiohttp.ClientSession() as session:
+                review, link, nome, releaseDate, rating, logDate = await randomreview(savedUser, session)
 
-                await ctx.send(f"'{review}'\n Guess The Movie! In 30 Seconds..!")
+                await ctx.send(f"{review}\n\n Guess The Movie! In 30 Seconds..!")
 
                 def check(m):
                     return m.channel == ctx.channel and not m.author.bot and m.content != "%gtr" and m.content != "%guessthereview"
@@ -52,22 +52,35 @@ class GuessTheReviewCog(commands.Cog):
                 timeout = 30
                 starttime = asyncio.get_event_loop().time()
 
-                while True:
-                    timeLeft = timeout - (asyncio.get_event_loop().time() - starttime)
-                    try:
-                        resposta = await self.bot.wait_for('message', check=check, timeout=timeLeft)
-                    except asyncio.TimeoutError:
-                        await ctx.send(f"⏰ Tempo Esgotado! A resposta era... [{nome}]({link})")
-                        break
+                over = asyncio.Event()
+
+                async def send_clue():
+                    await asyncio.sleep(10) 
+                    if not over.is_set():
+                        await ctx.send(f"*Clue 01* 🕵️‍♂️\n\nWatch Date: {logDate}")
+                        
+                    await asyncio.sleep(15)
+                    if not over.is_set():
+                        await ctx.send(f"*Clue 02* 🕵️‍♂️\n\nYour Rating: {rating}")
                     
-                    if resposta.content.lower().strip() == nome.lower().strip():
-                        await resposta.add_reaction("✅")
-                        await resposta.reply(f"{resposta.author.mention} [Acertou Parabéns!!]({link})")
-                            
-                        break 
-                    else:
-                        await resposta.add_reaction("❌")
-                            
+
+                asyncio.create_task(send_clue())
+                
+                try:
+                    while True:
+                        timeLeft = timeout - (asyncio.get_event_loop().time() - starttime)
+                        resposta = await self.bot.wait_for('message', check=check, timeout=timeLeft)
+                        if resposta.content.lower().strip() == nome.lower().strip():
+                            over.set()
+                            await resposta.add_reaction("✅")
+                            await resposta.reply(f"{resposta.author.mention} [Acertou Parabéns!!]({link})")
+                                
+                            break 
+                        else:
+                            await resposta.add_reaction("❌")
+                except asyncio.TimeoutError:
+                    over.set()
+                    await ctx.send(f"⏰ Tempo Esgotado! A resposta era... [{nome}]({link})")    
 
 async def setup(bot):
     await bot.add_cog(GuessTheReviewCog(bot))
