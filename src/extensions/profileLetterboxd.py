@@ -9,32 +9,31 @@ import sqlite3
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import os
+from utils.db import DBUsers
 
-conn = sqlite3.connect("src/data/users.db")
-c = conn.cursor()
-c.execute('''
-    CREATE TABLE IF NOT EXISTS users(
-            discordId TEXT PRIMARY KEY,
-            letterboxdUser TEXT NOT NULL
-    )
-''')
+# conn = sqlite3.connect("src/data/users.db")
+# c = conn.cursor()
+# c.execute('''
+#     CREATE TABLE IF NOT EXISTS users(
+#             discordId TEXT PRIMARY KEY,
+#             letterboxdUser TEXT NOT NULL
+#     )
+# ''')
 class LetterboxdPillow(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
     @commands.command(name="profile")
     async def profile(self, ctx, *, user: str = None):
+        DBUsers.create(ctx.guild.id)
         discordId = str(ctx.author.id)
-        
         if user:
-            c.execute('REPLACE INTO users (discordId, letterboxdUser) VALUES (?, ?)', (discordId, user))
-            conn.commit()
+            DBUsers.replace(ctx.guild.id, discordId, user)
             savedUser = user
         else:
-            c.execute('SELECT letterboxdUser FROM users WHERE discordId = ?', (discordId,))
-            result = c.fetchone()
+            result = DBUsers.select(ctx.guild.id, discordId)
             if result:
-                savedUser = result[0]
+                savedUser = result
             else:
                 await ctx.send("Use o comando uma vez com seu user para salvar.")
                 return
@@ -103,16 +102,15 @@ class LetterboxdPillow(commands.Cog):
         
     @commands.command(name='last4')
     async def last4watched(self, ctx, *, user: str = None):
+        DBUsers.create(ctx.guild.id)
         discordId = str(ctx.author.id)
         if user:
-            c.execute('REPLACE INTO users (discordId, letterboxdUser) VALUES (?, ?)', (discordId, user))
-            conn.commit()
+            DBUsers.replace(ctx.guild.id, discordId, user)
             savedUser = user
         else:
-            c.execute('SELECT letterboxdUser FROM users WHERE discordId = ?', (discordId,))
-            result = c.fetchone()
+            result = DBUsers.select(ctx.guild.id, discordId)
             if result:
-                savedUser = result[0]
+                savedUser = result
             else:
                 await ctx.send("Use o comando uma vez com seu user para salvar.")
                 return

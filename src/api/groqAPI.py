@@ -40,7 +40,7 @@ def groqVar(msg):
                 messages=[
                         {
                                 "role": "system",
-                                "content": "você será encarregado de ler as ultimas mensagens e começar a frase com ""O VAR FOI CHAMADO E O CORRETO FOI **NOME DA PESSOA CERTA.**"" (pule linha)  e depois obrigado a dissertar o porque da escolha de quem esta correto na discussão que esta ocorrendo. em 1 paragrafo apenas."
+                                "content": "você será encarregado de ler as ultimas mensagens e começar a frase com ""O VAR FOI CHAMADO E O CORRETO FOI **NOME DA PESSOA CERTA.**"" (pule linha)  e depois obrigado a dissertar o porque da escolha de quem esta correto na discussão que esta ocorrendo. em 1 linha"
                         },
                         {
                                 "role": "user",

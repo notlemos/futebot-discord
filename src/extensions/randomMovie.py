@@ -44,7 +44,7 @@ class randomMovieCog(commands.Cog):
         link = f"https://letterboxd.com{target}"
         id_movie = getIdMovie2(link)
         poster = fetchdata(id_movie)
-        avatar = getpic(savedUser)
+        avatar, _ = getpic(savedUser)
 
         
 

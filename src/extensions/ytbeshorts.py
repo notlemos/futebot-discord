@@ -84,7 +84,7 @@ class shortsRandom(commands.Cog):
                 filename = ydl.prepare_filename(info_dict).rsplit('.', 1)[0] + '.mp4'
                 return filename
             except Exception as e:
-                print(e)
+               return e
 
         
     msg_id = None
@@ -122,7 +122,7 @@ class shortsRandom(commands.Cog):
             await ctx.reply(f"<{video_url}>", mention_author=False)
     
         except Exception as e:
-            print(e)
+            return e
         finally:
             os.remove(video_path)
       
@@ -139,7 +139,7 @@ class shortsRandom(commands.Cog):
         try:
             await interaction.followup.send(file=discord.File(video_path))
         except Exception as e:
-            print(e)
+            return e
         os.remove(video_path)
         return
 async def setup(bot):

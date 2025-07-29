@@ -103,7 +103,24 @@ async def getProfile(session, user):
         except:
             patron = None
         return img, nameSpan, patron
+async def getPfp(session, user):
+   
+    url = f'https://letterboxd.com/{user}'
+    async with session.get(url, headers=HTML_HEADERS) as response:
 
+        if response.status != 200:
+            return None, "Desconhecido"
+
+        html = await response.text()
+        
+
+        soup = BeautifulSoup(html, 'html.parser')
+
+        span = soup.find('span', class_="avatar -a110 -large")
+        img = span.find('img').get('src')
+        
+        
+        return img
 def getpic(user):
     url = f"https://letterboxd.com/{user}"
     response = requests.get(url, headers=headers)
@@ -118,7 +135,7 @@ def getpic(user):
     img = span.find('img').get('src')
     nameSpan = soup.find('span', class_="displayname tooltip").get_text()
         
-    return img
+    return img, nameSpan
     
 
 def get():
@@ -264,7 +281,16 @@ async def getpagesreviews(user, session):
         except:
             return 1 
         
-        
+async def getDirector(url, session):
+    url = url
+    async with session.get(url, headers=headers) as response:
+        if response.status != 200:
+            return 1 
+        html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser')
+
+        director = soup.find('p', class_="credits").find('span', class_="prettify").get_text().strip()
+        return director
 
 
 
@@ -278,13 +304,13 @@ async def randomreview(user, session):
         
 
         if response.status!= 200:
-            return 1
+            return 
         
         html = await response.text()
         soup = BeautifulSoup(html, 'html.parser') 
         reviews = soup.find_all('div', class_="listitem js-listitem")
         if not reviews:
-            return 'NO REVIEWS'
+            return 
         chosen = random.choice(reviews)
         review = chosen.find('div', class_='body-text -prose -reset js-review-body js-collapsible-text').get_text()        
         movie_link = "https://letterboxd.com" + chosen.find('h2', class_="name -primary prettify").find('a').get('href')
@@ -292,7 +318,8 @@ async def randomreview(user, session):
         date = chosen.find('span', class_='releasedate').find('a').get_text()
         rating = chosen.find('span', class_='content-reactions-strip -viewing').find('span').get_text()
         dateLog = chosen.find('span', class_='date').find('time').get_text()
-
-        return review, movie_link, movie_name, date, rating, dateLog
+        target = chosen.find('div', class_="really-lazy-load poster film-poster linked-film-poster").get('data-target-link')
+        
+        return review[1:], movie_link, movie_name, date, rating, dateLog, target
 
         

@@ -8,7 +8,6 @@ ____
 
 -  Real-time update of the Brazilian league table
 -  Information about games, transfers and team players
--  Sign command
 -  Weather forecast
 -  Spotify current music status
 -  Random commands

@@ -20,7 +20,7 @@ async def fetch_data(session, endpoint, media_type):
         posters = data.get('posters', [])
         backdrops = data.get('backdrops', [])
 
-        backdrop = next(islice((b for b in backdrops if b.get('iso_639_1') is None),2 , None), None)
+        backdrop = next(islice((b for b in backdrops if b.get('iso_639_1') is None),1 , None), None)
         poster = next(
             chain(
                 (p for p in posters if p.get('iso_639_1') == 'en'),

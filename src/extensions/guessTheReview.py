@@ -1,77 +1,71 @@
-import requests 
-from bs4 import BeautifulSoup 
-import random
-import time
 import re
 import asyncio
 import aiohttp
-
+import discord
 from discord.ext import commands 
-from scraping.letterboxd import randomreview 
-import sqlite3
-conn = sqlite3.connect("src/data/users.db")
-c = conn.cursor()
-c.execute('''
-    CREATE TABLE IF NOT EXISTS users(
-            discordId TEXT PRIMARY KEY,
-            letterboxdUser TEXT NOT NULL
-    )
-''')
-conn.commit()
+from scraping.letterboxd import randomreview, getPfp, getDirector
+from utils.views import GuessThereVIEW
+from utils.db import DBUsers, DBRank
+
+
+
 
 class GuessTheReviewCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot 
     
     @commands.command(name="guessthereview", aliases=['gtr'])
-    @commands.cooldown(rate=1, per=15, type=commands.BucketType.channel)
     async def guessthereview(self, ctx, *, user: str = None):
-
+        guildId = ctx.guild.id
+        DBUsers.create(guildId)
+        DBRank.create(guildId)
         discordId = str(ctx.author.id)
         if user:
-            c.execute('REPLACE INTO users (discordId, letterboxdUser) VALUES (?, ?)', (discordId, user))
-            conn.commit()
-            savedUser = user
+            DBUsers.replace(guildId, discordId, user)
+            savedUser = DBUsers.selectOneRandom(guildId)[0]
         else:
-            c.execute('SELECT letterboxdUser FROM users WHERE discordId = ?', (discordId,))
-            result = c.fetchone()
+            result = DBUsers.select(guildId, discordId)
             if result:
-                savedUser = result[0]
+                savedUser = DBUsers.selectOneRandom(guildId)[0]
             else:
                 await ctx.send("Use o comando uma vez com seu user para salvar.")
                 return
-            
+        
         async with aiohttp.ClientSession() as session:
-                review, link, nome, releaseDate, rating, logDate = await randomreview(savedUser, session)
+                review, link, nome, releaseDate, rating, logDate, target = await randomreview(savedUser, session)
+                nome_limpo = re.sub(r'[^\w]', '', nome).lower().strip()
+                
 
-                await ctx.send(f"{review}\n\n Guess The Movie! In 30 Seconds..!")
-
+                embed = discord.Embed(
+                    title="\n",
+                    description=f'**What’s the Movie? | Review Edition** \n\n "*{review.capitalize()}*"\n\n - **Released on: `{releaseDate}`** \n- **Your Rating:  {rating.strip()}**\n- **Watched on: `{logDate}`**',
+                    color=0x000000
+                )
+                pic = await getPfp(session, savedUser)
+                embed.set_footer(text=savedUser, icon_url=pic)
+                director = await getDirector(f"https://letterboxd.com{target}", session)
+                view = GuessThereVIEW(director, nome)
+                await ctx.send(embed=embed, view=view)
+                
                 def check(m):
-                    return m.channel == ctx.channel and not m.author.bot and m.content != "%gtr" and m.content != "%guessthereview"
+                    return m.channel == ctx.channel and not m.author.bot and '%' not in m.content
                 
                 timeout = 30
                 starttime = asyncio.get_event_loop().time()
-
-                over = asyncio.Event()
-
-                async def send_clue():
-                    await asyncio.sleep(10) 
-                    if not over.is_set():
-                        await ctx.send(f"*Clue 01* 🕵️‍♂️\n\nWatch Date: {logDate}")
-                        
-                    await asyncio.sleep(15)
-                    if not over.is_set():
-                        await ctx.send(f"*Clue 02* 🕵️‍♂️\n\nYour Rating: {rating}")
-                    
-
-                asyncio.create_task(send_clue())
                 
                 try:
                     while True:
                         timeLeft = timeout - (asyncio.get_event_loop().time() - starttime)
                         resposta = await self.bot.wait_for('message', check=check, timeout=timeLeft)
-                        if resposta.content.lower().strip() == nome.lower().strip():
-                            over.set()
+                        resposta_limpa = re.sub(r'[^\w]', '', resposta.content).lower().strip()
+                        
+                        
+                        if nome_limpo in resposta_limpa:
+                            if DBRank.getUserById(guildId, resposta.author.id):
+                                DBRank.incrementScore(guildId, resposta.author.id)
+                            else:
+                                DBRank.addPerson(guildId, resposta.author.id, resposta.author.name)
+                                DBRank.incrementScore(guildId, resposta.author.id)
                             await resposta.add_reaction("✅")
                             await resposta.reply(f"{resposta.author.mention} [Acertou Parabéns!!]({link})")
                                 
@@ -79,8 +73,39 @@ class GuessTheReviewCog(commands.Cog):
                         else:
                             await resposta.add_reaction("❌")
                 except asyncio.TimeoutError:
-                    over.set()
                     await ctx.send(f"⏰ Tempo Esgotado! A resposta era... [{nome}]({link})")    
+                    
 
+
+    @commands.command(name="top")
+    async def top(self, ctx):
+        guildId = ctx.guild.id
+        rank = DBRank.getRankOrder(guildId)
+        avatar = False
+        description = "1. Vazio."
+        if rank:
+            user = await self.bot.fetch_user(int(rank[0][2]))
+            avatar = user.display_avatar
+            description = ""
+            
+            max_nome = max(len(i[0]) for i in rank)
+            max_idx = len(str(len(rank)))
+
+            lines = [
+                f"{str(idx).rjust(max_idx)}. {i[0].ljust(max_nome)}  {i[1]}"
+                for idx, i in enumerate(rank, start=1)
+            ]
+                
+        
+            description = "```\n" + "\n".join(lines) + "\n```"
+        embed = discord.Embed(
+            title="Server Ranking | Guess The Review",
+            description=description,
+            color=0x000000
+        )
+        embed.set_footer(icon_url=f"{ctx.guild.icon.url}", text=f"{ctx.guild.name}")
+        if avatar:
+            embed.set_thumbnail(url=f'{user.display_avatar.url}')
+        await ctx.send(embed=embed)
 async def setup(bot):
     await bot.add_cog(GuessTheReviewCog(bot))

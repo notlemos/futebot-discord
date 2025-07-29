@@ -298,3 +298,87 @@ class DBTabela:
                 ''', (posicao, name, acronym, pontos, rodada))
 
             conn.commit()
+class DBUsers:
+    @staticmethod
+    def create(id):
+        with sqlite3.connect("src/data/users.db") as conn:
+            c = conn.cursor()
+            c.execute(f'''
+                CREATE TABLE IF NOT EXISTS users_{id} (
+                    discordId TEXT PRIMARY KEY,
+                    letterboxdUser TEXT NOT NULL
+                )
+            ''')
+    @staticmethod
+    def replace(id, discordid, user):
+        with sqlite3.connect("src/data/users.db") as conn:
+            c = conn.cursor()
+            c.execute(
+                f'REPLACE INTO users_{id} (discordId, letterboxdUser) VALUES (?, ?)',
+                (discordid, user)
+            )
+    @staticmethod
+    def select(id, discordid):
+        with sqlite3.connect("src/data/users.db") as conn:
+            c = conn.cursor()
+            c.execute(
+                f'SELECT letterboxdUser FROM users_{id} WHERE discordId = ?',
+                (discordid,)
+            )
+            result = c.fetchone()
+        return result[0] if result else None
+    @staticmethod
+    def selectOneRandom(id):
+        with sqlite3.connect("src/data/users.db") as conn:
+            c = conn.cursor()
+            c.execute(f'''
+                SELECT letterboxdUser FROM users_{id} ORDER BY RANDOM() LIMIT 1
+            ''')
+            return c.fetchone()
+class DBRank:
+    @staticmethod
+    def create(id):
+        with sqlite3.connect("src/data/rankUsers.db") as conn:
+            c = conn.cursor()
+            c.execute(f'''
+                CREATE TABLE IF NOT EXISTS rank_{id} (
+                    discord_id TEXT PRIMARY KEY,
+                    discord_user TEXT NOT NULL,
+                    score INTEGER DEFAULT 0
+                )
+            ''')
+    @staticmethod 
+    def addPerson(id, discord_id, discord_user):
+         with sqlite3.connect("src/data/rankUsers.db") as conn:
+            c = conn.cursor()
+            c.execute(f'''
+                INSERT INTO rank_{id} (discord_id, discord_user) VALUES (?, ?)
+            ''', (discord_id, discord_user))
+    @staticmethod
+    def incrementScore(id, discord_id):
+        with sqlite3.connect("src/data/rankUsers.db") as conn:
+            c = conn.cursor()
+            c.execute(f'''
+                UPDATE rank_{id}
+                SET score = score + 1 
+                where discord_id = ?
+                
+        ''', (discord_id,))
+    @staticmethod
+    def getUserById(id, discord_id):
+        with sqlite3.connect("src/data/rankUsers.db") as conn:
+            c = conn.cursor()
+            c.execute(f'''
+            SELECT discord_user FROM rank_{id} WHERE discord_id = ?
+            ''', (discord_id,))
+            result = c.fetchone()
+            return result is not None
+    @staticmethod 
+    def getRankOrder(id):
+        with sqlite3.connect("src/data/rankUsers.db") as conn:
+            c = conn.cursor()
+            c.execute(f'''
+                SELECT discord_user, score, discord_id FROM rank_{id} ORDER BY score DESC
+            ''')
+            return c.fetchall()
+    

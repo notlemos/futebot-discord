@@ -43,3 +43,4 @@ class ArtilheirosCog(commands.Cog):
 async def setup(bot):
     await bot.add_cog(ArtilheirosCog(bot))
     await bot.add_cog(JogadoresCog(bot))
+

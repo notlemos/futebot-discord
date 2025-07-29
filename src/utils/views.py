@@ -3,6 +3,7 @@ import sqlite3
 import os
 from api.tmdbAPI import fetch_data
 import logging
+import random
 logger = logging.getLogger(__name__)
 
 class TransfersViews(discord.ui.View):
@@ -113,3 +114,37 @@ class ArtilheirosView(discord.ui.View):
     @discord.ui.button(label="Fechar", style=discord.ButtonStyle.grey)
     async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.edit_message(content="Mensagem Fechada! ", embed=None, view=None)
+
+class GuessThereVIEW(discord.ui.View):
+    def __init__(self, director, name):
+        super().__init__(timeout=30)
+        self.director = director
+        self.name = name
+    @discord.ui.button(label="Add hint", style=discord.ButtonStyle.grey)
+    async def giveHint(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = interaction.message.embeds[0] 
+
+        desc = embed.description
+        hint = f"\n- **Directed by: `{self.director}`**"
+
+        embed.description = desc + hint
+        button.disabled = True
+        await interaction.response.edit_message(embed=embed, view=self)
+    @discord.ui.button(label="Jumbled name", style=discord.ButtonStyle.grey)
+    async def jumbledName(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = interaction.message.embeds[0]
+        
+        text =  self.name
+        namesplited = text.split(" ")
+        jumbledlist = []
+        for word in namesplited:
+            words = list(word)
+            random.shuffle(words)
+            jumbledlist.append(''.join(words).upper())
+       
+        jumbledname = ' '.join(jumbledlist)
+        
+        embed.title = f"`{jumbledname}`"
+        button.label = "Reshuffle"
+        await interaction.response.edit_message(embed=embed, view=self)
+    
