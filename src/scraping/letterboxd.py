@@ -322,4 +322,65 @@ async def randomreview(user, session):
         
         return review[1:], movie_link, movie_name, date, rating, dateLog, target
 
+async def getRatings(session, nick):
+    url = f"https://letterboxd.com/{nick}/"
+    async with session.get(url, headers=headers) as response:
+
+        if response.status!= 200:
+            return 
+        html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser') 
+        section = soup.select_one('section.section.ratings-histogram-chart')
+        ratings = section.select_one('div.rating-histogram.clear.rating-histogram-exploded')
         
+        texto = ratings.get_text(separator=" ", strip=True).split(" ")[1:-1]
+        texto = [r.replace('\xa0', ' ') for r in texto if '\xa0' in r or r.startswith('(')]
+        numberss = []
+        percentss = []
+        for i in range(0, len(texto), 2):
+            temp_list = texto[i].split(" ")
+            if len(temp_list) < 2:
+                continue
+            numbers = temp_list[0]
+        
+            percent = texto[i + 1] if i + 1 < len(texto) else "0%"  
+            numberss.append(numbers)
+            percentss.append(percent)
+        return numberss, percentss
+async def getDiary(session, user, year, month):
+    url = f"https://letterboxd.com/{user}/films/diary/for/{year}/{month}/"
+    async with session.get(url, headers=headers) as response:
+
+        if response.status!= 200:
+            return 
+        html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser') 
+        diary = soup.select('tr.diary-entry-row.viewing-poster-container')
+        
+
+        names = []
+    
+        days =[]
+        
+        stars = []
+        
+        
+        for i in diary:
+            days.append(i.select_one('td.td-day.diary-day.center').get_text().strip())
+            names.append(i.select_one('h2.name.-primary.prettify').get_text())
+            stars.append(i.select_one('div.hide-for-owner').get_text().strip())
+        
+        return names, days, stars
+async def getYears(session, user):
+    url = f"https://letterboxd.com/{user}/films/diary/"
+    async with session.get(url, headers=headers) as response:
+        if response.status != 200:
+            return
+        html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser') 
+        sections = soup.select('section.smenu-wrapper')[5].find_all('li')
+        years = []
+        for x in sections[1:]:
+            years.append(int(x.get_text()))
+        
+        return years
