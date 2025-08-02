@@ -5,7 +5,8 @@ import discord
 from discord import app_commands
 import datetime
 from discord.ext import commands 
-from scraping.letterboxd import getRatings, getPfp, getDiary, getYears
+from utils.views import DiaryView
+from scraping.letterboxd import getRatings, getPfp, getDiary, getYears, getHowMuchMovies
 from utils.db import DBUsers
 
 class GetRatingsCog(commands.Cog):
@@ -101,7 +102,7 @@ class GetRatingsCog(commands.Cog):
             yearsPossible = await getYears(session, letterboxdUser)
             if ano not in yearsPossible:
                 await ctx.send(f"O usuário não tem filmes logados no ano {ano} !")
-                
+            
             names, days, stars = await getDiary(session, letterboxdUser, ano, mes)
 
             
@@ -121,11 +122,42 @@ class GetRatingsCog(commands.Cog):
                 description=description,
                 color=0x000000
             )
-
+            
             embed.set_thumbnail(url=f'{avatar}')
             embed.set_footer(icon_url="https://a.ltrbxd.com/logos/letterboxd-mac-icon.png", text = f"{letterboxdUser}'s diary for {ano}-{mes}")
-            await ctx.send(embed=embed)
+            view = DiaryView(self.bot, letterboxdUser, ano, mes, avatar, yearsPossible, ctx)
+            await ctx.send(embed=embed, view=view)
+    @commands.command(name="stats")
+    async def stats(self, ctx, *, user: str = None):
+        guildId = ctx.guild.id
+        DBUsers.create(guildId)
+        discordId = str(ctx.author.id)
+        if user:
+            DBUsers.replace(guildId, discordId, user)
+            letterboxdUser = user
+        else:
+            result = DBUsers.select(guildId, discordId)
+            if result:
+                letterboxdUser = result
+            else:
+                await ctx.send("Use o comando uma vez com seu user para salvar.")
+                return
+        async with aiohttp.ClientSession() as session:
+            years = await getYears(session, letterboxdUser)
+            howmuch = await getHowMuchMovies(session, letterboxdUser)
+            avatar = await getPfp(session, letterboxdUser)
 
+            desc_lines = [f"- {year} → {qty} filmes" for year, qty in zip(years, howmuch)]
+            description = "\n".join(desc_lines)
+
+            embed = discord.Embed(
+                title=f"{letterboxdUser}'s diary",
+                description=description,
+                color=0x000000
+            )
+            embed.set_thumbnail(url=avatar)
+            embed.set_footer(icon_url="https://a.ltrbxd.com/logos/letterboxd-mac-icon.png", text = f"{letterboxdUser}'s total movies: {sum(howmuch)}")
+            await ctx.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(GetRatingsCog(bot))

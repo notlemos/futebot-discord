@@ -37,7 +37,7 @@ class LetterboxdPillow(commands.Cog):
             else:
                 await ctx.send("Use o comando uma vez com seu user para salvar.")
                 return
-        font = ImageFont.truetype('fonts/Poppins-SemiBold.ttf', size=26)
+        font = ImageFont.truetype('fonts/Poppins-SemiBold.ttf', size=32)
         image = Image.open('imgs/profile_card_letterboxd.png').convert('RGBA')
         draw = ImageDraw.Draw(image)
 
@@ -56,7 +56,7 @@ class LetterboxdPillow(commands.Cog):
             image.paste(fade_backdrop, (0, 0), fade_backdrop)
                 
 
-            draw.text((220, 270), profileName, fill="#ffffff", font=font)
+            draw.text((220, 340), profileName, fill="#ffffff", font=font)
             text_bbox = font.getbbox(profileName)
             text_width = text_bbox[2] - text_bbox[0]
             text_end_x = 220 + text_width
@@ -67,8 +67,8 @@ class LetterboxdPillow(commands.Cog):
             
             if statusAccount == 'Patron':
                 patron = Image.open('imgs/patron_letterboxd.png')
-                patron = patron.resize((67, 23), Image.Resampling.LANCZOS)
-                image.paste(patron, (int(text_end_x + 5), 281), patron)
+                patron = patron.resize((73, 25), Image.Resampling.LANCZOS)
+                image.paste(patron, (int(text_end_x + 5), 350), patron)
                 
             
             mask = Image.new("L", profPic.size, 0)
@@ -78,7 +78,7 @@ class LetterboxdPillow(commands.Cog):
             circular_img = Image.composite(profPic, Image.new("RGBA", profPic.size, (0, 0, 0, 0)), mask)
             
                     
-            image.paste(circular_img, (30, 77),circular_img)
+            image.paste(circular_img, (30, 150),circular_img)
 
             
 
@@ -88,8 +88,8 @@ class LetterboxdPillow(commands.Cog):
             off_set = 30
             for poster_img in posters:
                 if poster_img:
-                    poster_img = poster_img.resize((290, 433), Image.Resampling.LANCZOS)
-                    image.paste(poster_img, (off_set, 408), poster_img)
+                    poster_img = poster_img.resize((290, 459), Image.Resampling.LANCZOS)
+                    image.paste(poster_img, (off_set, 500), poster_img)
                     off_set += 308
                     
 

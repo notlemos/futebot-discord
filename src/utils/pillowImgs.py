@@ -118,7 +118,7 @@ def pillowTabela(user):
     image.save("/tmp/tabela.png")
     return "/tmp/tabela.png"
 def cropImg(img):
-    target_w, target_h = 1279, 325
+    target_w, target_h = 1279, 418
 
     
     target_ratio = target_w / target_h
@@ -166,7 +166,7 @@ def fade(img):
     draw = ImageDraw.Draw(fade_mask)
 
   
-    grad_height = 900
+    grad_height = 1500
    
     
     # --- FADE BASE ---

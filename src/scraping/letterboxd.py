@@ -1,5 +1,5 @@
 import requests 
-from bs4 import BeautifulSoup 
+from bs4 import BeautifulSoup, SoupStrainer
 import random
 import time
 import re
@@ -364,12 +364,10 @@ async def getDiary(session, user, year, month):
         
         stars = []
         
-        
         for i in diary:
-            days.append(i.select_one('td.td-day.diary-day.center').get_text().strip())
+            days.append(i.select_one('a.daydate').get_text().strip())
             names.append(i.select_one('h2.name.-primary.prettify').get_text())
             stars.append(i.select_one('div.hide-for-owner').get_text().strip())
-        
         return names, days, stars
 async def getYears(session, user):
     url = f"https://letterboxd.com/{user}/films/diary/"
@@ -384,3 +382,22 @@ async def getYears(session, user):
             years.append(int(x.get_text()))
         
         return years
+async def fetch_quantity(session, user, year):
+    url = f"https://letterboxd.com/{user}/films/diary/for/{year}/"
+    async with session.get(url, headers=headers) as response:
+        if response.status != 200:
+            return 0
+        html = await response.text()
+        only_sections = SoupStrainer("p", class_="ui-block-heading")
+        soup = BeautifulSoup(html, 'html.parser', parse_only=only_sections)
+        text = soup.select_one('p')
+        if not text:
+            return 0
+        raw = text.get_text().strip()
+        match = re.search(r"\d+", raw)
+        return int(match.group()) if match else 0
+async def getHowMuchMovies(session, user):
+    years = await getYears(session, user)
+    tasks = [fetch_quantity(session, user, year) for year in years]
+    quantities = await asyncio.gather(*tasks)
+    return quantities 

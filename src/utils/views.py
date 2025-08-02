@@ -1,7 +1,12 @@
 import discord
-import sqlite3
-import os
 from api.tmdbAPI import fetch_data
+from scraping.letterboxd import getDiary
+import re
+import asyncio
+import aiohttp
+import discord
+import datetime
+from scraping.letterboxd import getRatings, getPfp, getDiary, getYears
 import logging
 import random
 logger = logging.getLogger(__name__)
@@ -147,4 +152,75 @@ class GuessThereVIEW(discord.ui.View):
         embed.title = f"`{jumbledname}`"
         button.label = "Reshuffle"
         await interaction.response.edit_message(embed=embed, view=self)
-    
+class DiaryView(discord.ui.View):
+    def __init__(self, bot, letterboxdUser, ano, mes, avatar, yearsPossible, ctx):
+        super().__init__(timeout=60)
+        self.bot = bot
+        self.letterboxdUser = letterboxdUser
+        self.ano = ano
+        self.mes = mes
+        self.avatar = avatar
+        self.yearsPossible = yearsPossible
+        self.ctx = ctx
+
+    async def update_embed(self, interaction):
+        async with aiohttp.ClientSession() as session:
+            
+            names, days, stars = await getDiary(session, self.letterboxdUser, self.ano, self.mes)
+            def pad_stars(star_str, length=5):
+                base = star_str.replace(' ', '')
+                return base + '☆' * (length - len(base))
+
+            def pad_name(names, length=29):
+                if len(names) > 29:
+                    s = names[:28] 
+                    return s.ljust(length - len(".")) + "."
+                else:
+                    return names
+
+            max_days = max(len(x) for x in days) if days else 2
+            lines = []
+            for day, name, star in zip(days, names, stars):
+                star_padded = pad_stars(star, 5)
+                name_padded = pad_name(name, 29)
+                line = f"{str(day).rjust(max_days)} | {str(name_padded).ljust(29)} | {star_padded.ljust(5)}"
+                lines.append(line)
+            description = "```\n" + "\n".join(lines) + "\n```"
+
+            embed = discord.Embed(
+                title=f"{self.letterboxdUser}'s diary",
+                description=description,
+                color=0x000000
+            )
+            embed.set_thumbnail(url=self.avatar)
+            embed.set_footer(
+                icon_url="https://a.ltrbxd.com/logos/letterboxd-mac-icon.png",
+                text=f"{self.letterboxdUser}'s diary for {self.ano}-{self.mes}"
+            )
+            await interaction.response.edit_message(embed=embed, view=self)
+    @discord.ui.button(label="⬅ Month", style=discord.ButtonStyle.blurple)
+    async def prevMonth(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.mes -= 1
+        if self.mes < 1:
+            self.mes = 12
+            self.ano -= 1
+        await self.update_embed(interaction)
+    @discord.ui.button(label="➡ Month", style=discord.ButtonStyle.blurple)
+    async def nextMonth(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.mes += 1
+        if self.mes > 12:
+            self.mes = 1
+            self.ano += 1
+        await self.update_embed(interaction)
+    @discord.ui.button(label="⬅ Year", style=discord.ButtonStyle.grey)
+    async def prevYear(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.ano -= 1
+        if self.ano not in self.yearsPossible:
+            self.ano = self.yearsPossible[0]
+        await self.update_embed(interaction)
+    @discord.ui.button(label="➡ Year", style=discord.ButtonStyle.grey)
+    async def nextYear(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.ano += 1
+        if self.ano not in self.yearsPossible:
+            self.ano = self.yearsPossible[0]
+        await self.update_embed(interaction)
