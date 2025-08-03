@@ -174,6 +174,6 @@ def fade(img):
         alpha = int(255 * ((altura - y) / grad_height))  # 255 → 0
         draw.line([(0, y), (largura+100, y)], fill=alpha)
    
-    recorte_com_fade = Image.composite(img, Image.new("RGBA", img.size, (32, 40, 48, 255)), fade_mask)
+    recorte_com_fade = Image.composite(img, Image.new("RGBA", img.size, (20, 24, 29, 255)), fade_mask)
     resultado_final = Image.composite(img, recorte_com_fade, fade_mask)
     return resultado_final

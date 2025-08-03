@@ -92,7 +92,7 @@ class GuessTheReviewCog(commands.Cog):
             max_idx = len(str(len(rank)))
 
             lines = [
-                f"{str(idx).rjust(max_idx)}. {i[0].ljust(max_nome)}  {i[1]}"
+                f"{str(idx).zfill(2).rjust(max_idx)}. {i[0].ljust(max_nome)}  {i[1]}"
                 for idx, i in enumerate(rank, start=1)
             ]
                 

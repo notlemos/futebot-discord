@@ -95,8 +95,8 @@ async def getProfile(session, user):
 
         soup = BeautifulSoup(html, 'html.parser')
 
-        span = soup.find('span', class_="avatar -a110 -large")
-        img = span.find('img').get('src')
+        
+        img = soup.find('meta', property="og:image").get('content')
         nameSpan = soup.find('span', class_="displayname tooltip").get_text()
         try:
             patron = soup.find('span', class_="badge -patron").get_text()
@@ -116,8 +116,7 @@ async def getPfp(session, user):
 
         soup = BeautifulSoup(html, 'html.parser')
 
-        span = soup.find('span', class_="avatar -a110 -large")
-        img = span.find('img').get('src')
+        img = soup.find('meta', property="og:image").get('content')
         
         
         return img

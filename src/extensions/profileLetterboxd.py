@@ -63,12 +63,12 @@ class LetterboxdPillow(commands.Cog):
             
             pp_resp = await session.get(profilePic)
             pp_bytes = await pp_resp.read()
-            profPic = Image.open(BytesIO(pp_bytes)).convert('RGBA')
+            profPic = Image.open(BytesIO(pp_bytes)).resize((220, 220)).convert('RGBA')
             
             if statusAccount == 'Patron':
                 patron = Image.open('imgs/patron_letterboxd.png')
                 patron = patron.resize((73, 25), Image.Resampling.LANCZOS)
-                image.paste(patron, (int(text_end_x + 5), 350), patron)
+                image.paste(patron, (int(text_end_x + 5), 352), patron)
                 
             
             mask = Image.new("L", profPic.size, 0)
@@ -85,12 +85,12 @@ class LetterboxdPillow(commands.Cog):
             tasks = [handle_movie(session, d['target']) for d in datas]
             posters = await asyncio.gather(*tasks)
 
-            off_set = 30
+            off_set = 10
             for poster_img in posters:
                 if poster_img:
-                    poster_img = poster_img.resize((290, 459), Image.Resampling.LANCZOS)
+                    poster_img = poster_img.resize((301, 459), Image.Resampling.LANCZOS)
                     image.paste(poster_img, (off_set, 500), poster_img)
-                    off_set += 308
+                    off_set += 318
                     
 
         temp_path = f"/tmp/profile_card{discordId}"

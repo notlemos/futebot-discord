@@ -28,7 +28,7 @@ class JogosView(commands.Cog):
                 inline=False
             )
         escudo = getEscudo((time))
-        embed.set_thumbnail(url=f"https://www.ogol.com.br{escudo}")
+        embed.set_thumbnail(url=escudo)
         await interaction.followup.send(embed=embed)
        
 
