@@ -93,7 +93,7 @@ class LetterboxdPillow(commands.Cog):
                     off_set += 318
                     
 
-        temp_path = f"/tmp/profile_card{discordId}"
+        temp_path = f"profile_card{discordId}"
         image.save(temp_path, format="PNG")
         file = discord.File(temp_path, filename="profile_card.png")
         await ctx.send(file=file)
@@ -142,7 +142,7 @@ class LetterboxdPillow(commands.Cog):
             
             pp_resp = await session.get(profilePic)
             pp_bytes = await pp_resp.read()
-            profPic = Image.open(BytesIO(pp_bytes)).convert('RGBA')
+            profPic = Image.open(BytesIO(pp_bytes)).resize((220, 220)).convert('RGBA')
             
             if statusAccount != None:
                 patron = Image.open('imgs/patron_letterboxd.png')
@@ -164,15 +164,15 @@ class LetterboxdPillow(commands.Cog):
             tasks = [handle_movie(session, d['target']) for d in datas]
             posters = await asyncio.gather(*tasks)
 
-            off_set = 30
+            off_set = 10
             for poster_img in posters:
                 if poster_img:
-                    poster_img = poster_img.resize((290, 433), Image.Resampling.LANCZOS)
-                    image.paste(poster_img, (off_set, 408), poster_img)
-                    off_set += 308
+                    poster_img = poster_img.resize((301, 459), Image.Resampling.LANCZOS)
+                    image.paste(poster_img, (off_set, 500), poster_img)
+                    off_set += 318
                     
 
-        temp_path = f"/tmp/last_four_watched{discordId}"
+        temp_path = f"last_four_watched{discordId}"
         image.save(temp_path, format="PNG")
         file = discord.File(temp_path, filename="last_four_watched.png")
         await ctx.send(file=file)

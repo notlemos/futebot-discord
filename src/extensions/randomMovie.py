@@ -39,8 +39,9 @@ class randomMovieCog(commands.Cog):
 
         
         movie = getWatchList(savedUser)
-        name = movie['name']
-        target = movie['target']
+        print(movie)
+        name = movie[0]['name']
+        target = movie[0]['target']
         link = f"https://letterboxd.com{target}"
         id_movie = getIdMovie2(link)
         poster = fetchdata(id_movie)

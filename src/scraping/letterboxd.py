@@ -11,40 +11,48 @@ headers = {
 HTML_HEADERS = {
     "User-Agent": "Mozilla/5.0"
 }
+def getpages(user):
+    url = f"https://letterboxd.com/{user}/watchlist"
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        return
 
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+    div = soup.find('div', class_="pagination")
+    a = div.find_all('a')
+    
+    return int(a[3].get_text())
+    
 def getWatchList(user):
-    pool = list(range(1,20))
-    while True:
-        if not pool:
-            print("sem watchlist")
-            return
+    pages = getpages(user)
+    page = random.randint(1, pages)
         
-        page_number = random.choice(pool)
-        url = f"https://letterboxd.com/{user}/watchlist/page/{page_number}/"
-        response = requests.get(url, headers=headers)
-        pool.remove(page_number)
+    
+    url = f"https://letterboxd.com/{user}/watchlist/page/{page}/"
+    response = requests.get(url, headers=headers)
+    
 
-        if response.status_code != 200:
-            continue
+    if response.status_code != 200:
+        return
 
 
-        soup = BeautifulSoup(response.text, 'html.parser')
-        div = soup.find_all("div", class_="really-lazy-load poster film-poster linked-film-poster")
-        images = soup.find_all("img", class_="image")
+    soup = BeautifulSoup(response.text, 'html.parser')
+    div = soup.find_all("div", class_="really-lazy-load poster film-poster linked-film-poster")
+    
         
-
-        if not div or not images:
-            continue
-
-        names = []
-
-        for trgt in div:
-            nome = trgt.find("img", class_="image").get("alt")
-            target = trgt.get("data-target-link")
-            if nome and target:
-                names.append({'name': nome, 'target': target})
-        
-        return random.choice(names)
+    select = random.choice(div)
+    
+    movie = []
+    
+    nome = select.find("img", class_="image").get("alt")
+    
+    target = select.get("data-target-link")
+    
+    
+    movie.append({'name': nome, 'target': target})
+    
+    return movie
 
 
 async def getIdMovie(session, url):
