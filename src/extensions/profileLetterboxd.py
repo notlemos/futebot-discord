@@ -45,6 +45,7 @@ class LetterboxdPillow(commands.Cog):
         async with aiohttp.ClientSession() as session:
             profilePic, profileName, statusAccount = await getProfile(session, savedUser)
             datas = getFavs(savedUser)
+            print(datas)
             first_fav = datas[0]
             
             backdrop_img = await handle_movie_backdrop(session, first_fav['target'])
@@ -135,7 +136,7 @@ class LetterboxdPillow(commands.Cog):
             image.paste(fade_backdrop, (0, 0), fade_backdrop)
                 
             
-            draw.text((220, 270), profileName, fill="#ffffff", font=font)
+            draw.text((220, 340), profileName, fill="#ffffff", font=font)
             text_bbox = font.getbbox(profileName)
             text_width = text_bbox[2] - text_bbox[0]
             text_end_x = 220 + text_width
@@ -146,8 +147,8 @@ class LetterboxdPillow(commands.Cog):
             
             if statusAccount != None:
                 patron = Image.open('imgs/patron_letterboxd.png')
-                patron = patron.resize((67, 23), Image.Resampling.LANCZOS)
-                image.paste(patron, (int(text_end_x + 5), 281), patron)
+                patron = patron.resize((73, 25), Image.Resampling.LANCZOS)
+                image.paste(patron, (int(text_end_x + 5), 352), patron)
             
             
             mask = Image.new("L", profPic.size, 0)
@@ -157,7 +158,7 @@ class LetterboxdPillow(commands.Cog):
             circular_img = Image.composite(profPic, Image.new("RGBA", profPic.size, (0, 0, 0, 0)), mask)
             
                     
-            image.paste(circular_img, (30, 77),circular_img)
+            image.paste(circular_img, (30, 150),circular_img)
 
             
 

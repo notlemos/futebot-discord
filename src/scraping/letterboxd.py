@@ -38,7 +38,7 @@ def getWatchList(user):
 
 
     soup = BeautifulSoup(response.text, 'html.parser')
-    div = soup.find_all("div", class_="really-lazy-load poster film-poster linked-film-poster")
+    div = soup.find_all("div", class_="react-component")
     
         
     select = random.choice(div)
@@ -181,44 +181,43 @@ def get():
     return all_data
         
 
+def getListPages(link):
+    url = link
+    response = requests.get(url=url, headers=headers)
+    
+    
+    soup = BeautifulSoup(response.text, 'html.parser')
+    try:
+        div = soup.select('li.paginate-page')
+        numberOfPages = div[-1].get_text()
+    except:
+        numberOfPages = 1
+
+    return numberOfPages
+        
+
+
 
 def getRandomList(link):
-    while True:
-        all_data = []
-        page = random.randint(1,8)
-        url = f"{link}/page/{page}/"
-        respose = requests.get(url=url, headers=headers)
-        if respose.status_code != 200:
-            continue
-            
-        soup = BeautifulSoup(respose.text, 'html.parser')
-            
-        li = soup.find_all("li", class_="poster-container")
-        if not li:
-            continue
-        nameList = soup.find("h1", class_="title-1 prettify has-notes")
-        if nameList:
-            nameList = nameList.text 
-        else:
-            nameList = soup.find("h1", class_="title-1 prettify").text
-        
-        for i in li:
-            div = i.find('div', class_="really-lazy-load poster film-poster linked-film-poster")
-            if not div:
-                continue
-            target = div.get("data-target-link") 
-            
-            name = div.find("img").get('alt')
-            link = "https://letterboxd.com" + target
-        
-            
-            all_data.append({
-                'namelist': nameList,
-                'name': name,
-                'link': link,
-                
-            })
-        return random.choice(all_data)
+    
+    all_data = []
+    page = getListPages(link)
+    url = f"{link}/page/{page}/"
+    respose = requests.get(url=url, headers=headers)
+   
+    soup = BeautifulSoup(respose.text, 'html.parser')
+    movies = soup.select('div.react-component')
+    name_list = soup.select_one('h1.title-1.prettify').get_text()
+    movie = random.choice(movies)
+    target = movie.get('data-item-link')
+    name = movie.get('data-item-name')
+    linkFull = "https://letterboxd.com" + target
+    all_data.append({
+        'namelist': name_list,
+        'name': name,
+        'link': linkFull
+    })
+    return all_data
 def getFavs(user):
    
     url = f'https://letterboxd.com/{user}'
@@ -228,15 +227,18 @@ def getFavs(user):
         return 
     
     soup = BeautifulSoup(response.text, 'html.parser')
-    movies = soup.select('li.poster-container.favourite-film-poster-container')
+   
+    movies = soup.select('li.posteritem.favourite-production-poster-container')
+    
     favs = []
     targets = []
     all_data = []
+    
     for movie in movies:
-        target = movie.select_one('div.really-lazy-load.poster.film-poster.linked-film-poster').get('data-details-endpoint')
+        target = movie.select_one('div.react-component').get('data-item-link')
         fav = movie.select_one('img').get('alt')
         favs.append(fav)
-        targets.append("https://letterboxd.com" + target[:-5])
+        targets.append("https://letterboxd.com" + target)
     for targett, filme in zip(targets, favs):
         all_data.append({
             'filme': filme,
@@ -251,18 +253,18 @@ def getLastFourWatched(user):
         return 
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    movies = soup.select('li.poster-container.viewing-poster-container')
+    movies = soup.select('li.posteritem.viewing-poster-container')
     
     lastFourWatched = []
     targets = []
     all_data = []
 
     for movie in movies:
-        target = movie.select_one('div.really-lazy-load.poster.film-poster.linked-film-poster').get('data-details-endpoint')
+        target = movie.select_one('div.react-component').get('data-item-link')
         last = movie.select_one('img').get('alt')
         lastFourWatched.append(last)
         
-        targets.append("https://letterboxd.com" + target[:-5])
+        targets.append("https://letterboxd.com" + target)
     for targett, filme in zip(targets, lastFourWatched):
         all_data.append({
             'filme': filme, 

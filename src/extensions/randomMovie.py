@@ -39,7 +39,7 @@ class randomMovieCog(commands.Cog):
 
         
         movie = getWatchList(savedUser)
-        print(movie)
+        
         name = movie[0]['name']
         target = movie[0]['target']
         link = f"https://letterboxd.com{target}"
@@ -104,9 +104,9 @@ class randomMovieCog(commands.Cog):
             await ctx.send("Necessário inserir o link de uma lista do letterboxd.")
         movie = getRandomList(link)
         if movie:
-            namelist = movie['namelist']
-            name = movie['name']
-            target = movie['link']
+            namelist = movie[0]['namelist']
+            name = movie[0]['name']
+            target = movie[0]['link']
             id = getIdMovie2(target)
             poster = fetchdata(id)
             embed = discord.Embed(
