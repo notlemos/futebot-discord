@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from functools import lru_cache
-
+from datetime import datetime, timedelta, timezone
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"
 }
@@ -188,7 +188,49 @@ def getJogos(time):
         return all_data
     else:
         return None
+def getMatchsToday():
+    now = datetime.now(timezone.utc)
 
+    start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
+
+    start_str = start_date.isoformat().replace("+00:00", "Z")
+    end_str = end_date.isoformat().replace("+00:00", "Z")
+
+    url = "https://api.futez.com.br/matches"
+    params = {
+        "startDate": f"{start_str}",
+        "endDate": f"{end_str}",
+        "sortBy": "match_datetime",
+        "sortOrder": "desc",
+    }
+
+    resp = requests.get(url, params=params)
+    data = resp.json()
+
+    ligas_brasileiras = {
+        "Brasileirão Série A",
+        "Brasileirão Série B",
+        "Copa do Brasil",
+        "Paulista A1",
+        "Carioca Série A",
+        "Sul-Mato-Grossense",
+        "Paranaense",
+        "CONMEBOL Sudamericana",
+        "CONMEBOL Libertadores"
+    }
+
+    brasil_matches = [m for m in data if m["league_name"] in ligas_brasileiras]
+    all_data = []
+    for match in brasil_matches:
+        all_data.append({
+            'leaguename': match['league_name'],
+            'home_team': match['home_team_name'],
+            'away_tem': match['away_team_name'],
+            'date': match['match_datetime']
+        })
+    return all_data
 @lru_cache(maxsize=20)
 def getTransfers(time):
 

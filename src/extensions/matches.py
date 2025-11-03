@@ -2,6 +2,9 @@ import discord
 from discord.ext import commands
 from discord import app_commands 
 from scraping.futedata import getJogos, getPlayers, getEscudo
+from scraping.futedata import getMatchsToday
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 import logging
 logger = logging.getLogger(__name__)
 
@@ -30,7 +33,24 @@ class JogosView(commands.Cog):
         escudo = getEscudo((time))
         embed.set_thumbnail(url=escudo)
         await interaction.followup.send(embed=embed)
-       
+    @app_commands.command(name="matchs", description="Jogos do dia.")
+    async def matchs(self, interactions: discord.Interaction):
+        await interactions.response.defer()
+        jogos = getMatchsToday()
+        print(jogos)
+        embed =  discord.Embed(title=f'⚔️ Tabela de jogos de hoje ⚔️', description='')
+        for row in jogos:
+            data_og = row['date']
+            dt = datetime.fromisoformat(data_og.replace("Z", "+00:00")).astimezone(ZoneInfo("America/Sao_Paulo"))
+            
+            data = dt.strftime("%H:%M")
+            embed.add_field(
+                
+                name=f'{row['home_team']} x {row['away_tem']} - {data}',
+                value=f'{row['leaguename']}'
+            )
+        await interactions.followup.send(embed=embed)
+        
 
 async def setup(bot):
     await bot.add_cog(JogosView(bot))
