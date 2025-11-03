@@ -35,7 +35,7 @@ class GuessTheReviewCog(commands.Cog):
                 review, link, nome, releaseDate, rating, logDate, target = await randomreview(savedUser, session)
                 nome_limpo = re.sub(r'[^\w]', '', nome).lower().strip()
                 
-
+                
                 embed = discord.Embed(
                     title="\n",
                     description=f'**What’s the Movie? | Review Edition** \n\n "*{review.capitalize()}*"\n\n - **Released on: `{releaseDate}`** \n- **Your Rating:  {rating.strip()}**\n- **Watched on: `{logDate}`**',

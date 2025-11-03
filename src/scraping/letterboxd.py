@@ -289,6 +289,7 @@ async def getpagesreviews(user, session):
             return int(pages[-1].get_text())
         except:
             return 1 
+
         
 async def getDirector(url, session):
     url = url
@@ -298,10 +299,9 @@ async def getDirector(url, session):
         html = await response.text()
         soup = BeautifulSoup(html, 'html.parser')
 
-        director = soup.find('p', class_="credits").find('span', class_="prettify").get_text().strip()
+        director = soup.find('a', class_="contributor").find('span').get_text()
+        
         return director
-
-
 
 
 async def randomreview(user, session):
@@ -327,10 +327,9 @@ async def randomreview(user, session):
         date = chosen.find('span', class_='releasedate').find('a').get_text()
         rating = chosen.find('span', class_='content-reactions-strip -viewing').find('span').get_text()
         dateLog = chosen.find('span', class_='date').find('time').get_text()
-        target = chosen.find('div', class_="really-lazy-load poster film-poster linked-film-poster").get('data-target-link')
+        target = chosen.find('div', class_="react-component figure").get('data-target-link')
         
         return review[1:], movie_link, movie_name, date, rating, dateLog, target
-
 async def getRatings(session, nick):
     url = f"https://letterboxd.com/{nick}/"
     async with session.get(url, headers=headers) as response:
