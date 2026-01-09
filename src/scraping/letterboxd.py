@@ -11,6 +11,19 @@ headers = {
 HTML_HEADERS = {
     "User-Agent": "Mozilla/5.0"
 }
+async def getFilmsPages(user, session):
+    url = f"https://letterboxd.com/{user}/films"
+    async with session.get(url, headers=headers) as response:
+        if response.status != 200:
+            return
+
+        html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser')
+        div = soup.find('div', class_="pagination")
+    
+        a = div.find_all('a')
+        
+        return int(a[3].get_text())
 def getpages(user):
     url = f"https://letterboxd.com/{user}/watchlist"
     response = requests.get(url, headers=headers)
@@ -23,7 +36,36 @@ def getpages(user):
     a = div.find_all('a')
     
     return int(a[3].get_text())
+async def getFilmsList(user, session):
+    pages = await getFilmsPages(user, session)
+    page = random.randint(1, pages)
+        
     
+    url = f"https://letterboxd.com/{user}/films/page/{page}/"
+    async with session.get(url, headers=headers) as response:
+    
+
+        if response.status != 200:
+            return
+
+        html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser')
+        div = soup.find_all("li", class_="griditem")
+        
+            
+        select = random.choice(div)
+        
+        movie = []
+        
+        nome = select.find("img", class_="image").get("alt")
+        target = select.find('div', class_="react-component").get('data-target-link')
+        rating = select.find("p", class_="poster-viewingdata").get_text()
+        
+        id, filter = await getIdMovie(session, 'https://letterboxd.com/' + target)
+        
+        movie.append({'name': nome, 'target': target, 'rating': rating, 'id': id, 'filter': filter})
+        
+        return movie
 def getWatchList(user):
     pages = getpages(user)
     page = random.randint(1, pages)
@@ -56,7 +98,7 @@ def getWatchList(user):
 
 
 async def getIdMovie(session, url):
-    async with session.get(url, headers=HTML_HEADERS) as response:
+    async with session.get(url, headers=headers) as response:
     
     
 
@@ -75,7 +117,20 @@ async def getIdMovie(session, url):
         filter = number.strip('/').split('/')[-2]
         
         return id, filter
-    
+async def getratings2(session, user):
+    url = f"https://letterboxd.com/{user}/"
+    async with session.get(url, headers=headers) as response:
+        if response.status != 200:
+            return None 
+        html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser')
+        data = []
+        divs = soup.find('div', class_="rating-histogram clear rating-histogram-exploded")
+        li = divs.find_all('li', class_='rating-histogram-bar')
+        for i in li:
+            partes = i.text.strip().split(' ')
+            data.append([partes[0], partes[-1]])
+        return data
 
 def getIdMovie2(url):
     response = requests.get(url, headers=headers)
@@ -86,8 +141,8 @@ def getIdMovie2(url):
         
     id = number.strip('/').split('/')[-1]
     filter = number.strip('/').split('/')[-2]
-        
-    return id
+   
+    return id, filter
 
 
 async def getProfile(session, user):

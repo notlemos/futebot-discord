@@ -6,8 +6,8 @@ APITOKEN = os.getenv("TMBD_TOKEN")
 
 async def fetch_data(session, endpoint, media_type):
     headers = {
-        "accept": "application/json",
-        "Authorization": APITOKEN
+        "Authorization": f"{APITOKEN}",
+        "Accept": "application/json"
     }
     url = f"https://api.themoviedb.org/3/{media_type}/{endpoint}/images"
     async with session.get(url, headers=headers) as response:
@@ -36,13 +36,13 @@ async def fetch_data(session, endpoint, media_type):
         return poster_path, backdrop_path
 
         
-def fetchdata(endpoint):
+def fetchdata(endpoint, media_type):
     headers = {
     "accept": "application/json",
     "Authorization": APITOKEN
     }
     
-    urll = f"https://api.themoviedb.org/3/movie/{endpoint}/images"
+    urll = f"https://api.themoviedb.org/3/{media_type}/{endpoint}/images"
     response = requests.get(urll, headers=headers)
     
     if response.status_code != 200:

@@ -9,6 +9,8 @@ import datetime
 from scraping.letterboxd import getRatings, getPfp, getDiary, getYears
 import logging
 import random
+from io import BytesIO
+from PIL import Image
 logger = logging.getLogger(__name__)
 
 class TransfersViews(discord.ui.View):
@@ -152,6 +154,62 @@ class GuessThereVIEW(discord.ui.View):
         embed.title = f"`{jumbledname}`"
         button.label = "Reshuffle"
         await interaction.response.edit_message(embed=embed, view=self)
+class GuessTheMovie(discord.ui.View):
+    def __init__(self, img, diretor, name):
+        super().__init__(timeout=30)
+        self.img = img
+        self.diretor = diretor
+        self.name = name
+        self.p = 128
+        self.flag = True
+    @discord.ui.button(label="Add hint", style=discord.ButtonStyle.grey)
+    async def giveHint(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = interaction.message.embeds[0] 
+        
+        if self.flag == True:
+            hint = f"\n- **Directed by: `{self.diretor}`**"
+            desc = embed.description
+            embed.description = desc + hint
+        if self.p <= 16:
+            button.disabled = True
+            return 
+        
+        self.p -= 16
+        w, h = self.img.size
+        small = self.img.resize((max(1, w//self.p), max(1, h//self.p)), Image.NEAREST)
+        pixelated = small.resize((w, h), Image.NEAREST)
+
+        buffer = BytesIO()
+        pixelated.save(buffer, format="PNG")
+        buffer.seek(0)
+        
+        file = discord.File(buffer, filename="pixel.png")
+        self.flag = False
+        await interaction.response.edit_message(
+            embed = embed,
+            attachments=[file],
+            view=self
+        )
+    @discord.ui.button(label="Jumbled name", style=discord.ButtonStyle.grey)
+    async def jumbledName(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = interaction.message.embeds[0]
+        
+        text =  self.name
+        namesplited = text.split(" ")
+        jumbledlist = []
+        for word in namesplited:
+            words = list(word)
+            random.shuffle(words)
+            jumbledlist.append(''.join(words).upper())
+       
+        jumbledname = ' '.join(jumbledlist)
+        
+        embed.title = f"`{jumbledname}`"
+        
+        button.label = "Reshuffle"
+        await interaction.response.edit_message(embed=embed, view=self)
+    
+    
 class DiaryView(discord.ui.View):
     def __init__(self, bot, letterboxdUser, ano, mes, avatar, yearsPossible, ctx):
         super().__init__(timeout=60)

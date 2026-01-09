@@ -47,6 +47,7 @@ class LetterboxdPillow(commands.Cog):
             datas = getFavs(savedUser)
             print(datas)
             first_fav = datas[0]
+            print(first_fav)
             
             backdrop_img = await handle_movie_backdrop(session, first_fav['target'])
             
@@ -197,6 +198,7 @@ async def handle_movie(session, letterboxd_link):
         return Image.open(BytesIO(img_data)).convert('RGBA')
 async def handle_movie_backdrop(session, letterboxd_link):
     id, media_type = await getIdMovie(session, letterboxd_link)
+    
     if not id:
         return None
     
