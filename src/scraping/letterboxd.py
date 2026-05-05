@@ -1,55 +1,56 @@
 import requests 
 from bs4 import BeautifulSoup, SoupStrainer
+import cloudscraper
 import random
+from curl_cffi.requests import AsyncSession
+from curl_cffi import requests
+from bs4 import BeautifulSoup
 import time
 import re
+import cloudscraper
 import asyncio
 import aiohttp
 headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"
-        }
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
+    }
 HTML_HEADERS = {
     "User-Agent": "Mozilla/5.0"
 }
-async def getFilmsPages(user, session):
-    url = f"https://letterboxd.com/{user}/films"
-    async with session.get(url, headers=headers) as response:
-        if response.status != 200:
-            return
+async def getFilmsPages(user):
+    
+    async with AsyncSession(impersonate="chrome120") as session:
+        url = f"https://letterboxd.com/{user}/films"
+        headers = {"Referer": url}
+        
 
-        html = await response.text()
-        soup = BeautifulSoup(html, 'html.parser')
+        response = await session.get(url, headers=headers)
+        soup = BeautifulSoup(response.text, 'html.parser')
         div = soup.find('div', class_="pagination")
     
         a = div.find_all('a')
         
         return int(a[3].get_text())
 def getpages(user):
-    url = f"https://letterboxd.com/{user}/watchlist"
-    response = requests.get(url, headers=headers)
-    if response.status_code != 200:
-        return
-
-
-    soup = BeautifulSoup(response.text, 'html.parser')
-    div = soup.find('div', class_="pagination")
-    a = div.find_all('a')
+    session = requests.Session(impersonate="chrome110")
+    url = f"https://letterboxd.com/{user}/watchlist/"
+    resp = session.get(url)
+    soup = BeautifulSoup(resp.text, "html.parser")
+    div = soup.find_all('li', class_="paginate-page")
+    return int(div[-1].get_text())
     
-    return int(a[3].get_text())
-async def getFilmsList(user, session):
-    pages = await getFilmsPages(user, session)
+
+    
+async def getFilmsList(user):
+    pages = await getFilmsPages(user)
     page = random.randint(1, pages)
         
-    
-    url = f"https://letterboxd.com/{user}/films/page/{page}/"
-    async with session.get(url, headers=headers) as response:
-    
+    async with AsyncSession(impersonate="chrome120") as session:
+        
+        url = f"https://letterboxd.com/{user}/films/page/{page}/"
+        headers = {"Referer": url}
 
-        if response.status != 200:
-            return
-
-        html = await response.text()
-        soup = BeautifulSoup(html, 'html.parser')
+        response = await session.get(url, headers=headers)
+        soup = BeautifulSoup(response.text, 'html.parser')
         div = soup.find_all("li", class_="griditem")
         
             
@@ -61,62 +62,59 @@ async def getFilmsList(user, session):
         target = select.find('div', class_="react-component").get('data-target-link')
         rating = select.find("p", class_="poster-viewingdata").get_text()
         
-        id, filter = await getIdMovie(session, 'https://letterboxd.com/' + target)
+        id, filter = await getIdMovie('https://letterboxd.com/' + target)
         
         movie.append({'name': nome, 'target': target, 'rating': rating, 'id': id, 'filter': filter})
         
         return movie
 def getWatchList(user):
+    scraper = cloudscraper.create_scraper()
     pages = getpages(user)
     page = random.randint(1, pages)
-        
     
-    url = f"https://letterboxd.com/{user}/watchlist/page/{page}/"
-    response = requests.get(url, headers=headers)
-    
+    url = f"https://letterboxd.com/{user}/watchlist/page/{page}"
 
-    if response.status_code != 200:
-        return
+    resp = scraper.get(url)
+    soup = BeautifulSoup(resp.text, "html.parser")
 
+    items = soup.find_all("div", class_="react-component")
 
-    soup = BeautifulSoup(response.text, 'html.parser')
-    div = soup.find_all("div", class_="react-component")
-    
-        
-    select = random.choice(div)
-    
-    movie = []
-    
-    nome = select.find("img", class_="image").get("alt")
-    
-    target = select.get("data-target-link")
-    
-    
-    movie.append({'name': nome, 'target': target})
-    
-    return movie
+    if not items:
+        print("Bloqueado ou sem dados")
+        return None
+
+    select = random.choice(items)
+
+    name = select.get("data-item-name")
+    link = select.get("data-target-link")
+
+    return {
+        "name": name,
+        "link": f"https://letterboxd.com{link}"
+    }
 
 
-async def getIdMovie(session, url):
-    async with session.get(url, headers=headers) as response:
-    
-    
+async def getIdMovie(url):
+    async with AsyncSession(impersonate="chrome104") as s:
+            resp = await s.get(url, timeout=15, headers=headers)
+            
+            if resp.status_code != 200:
+                print(f"Erro HTTP: {resp.status_code}")
+                return None, None
 
-        if response.status != 200:
-            return None, None 
-        
-        html = await response.text()
-        
-        soup = BeautifulSoup(html, 'html.parser')
+            html = resp.text
 
+            soup = BeautifulSoup(html, "html.parser")
 
-        tag_p = soup.find("p", class_="text-link text-footer")
-        number = tag_p.find("a", attrs={'data-track-action': 'TMDB'}).get('href')
-        
-        id = number.strip('/').split('/')[-1]
-        filter = number.strip('/').split('/')[-2]
-        
-        return id, filter
+          
+            a = soup.select_one("p.text-link.text-footer a[data-track-action='TMDB']")
+            
+            if not a:
+                print("Link do TMDB não encontrado na página.")
+                return None, None
+            href = a["href"].strip("/")
+            parts = href.split("/")
+            return parts[-1], parts[-2]
 async def getratings2(session, user):
     url = f"https://letterboxd.com/{user}/"
     async with session.get(url, headers=headers) as response:
@@ -133,9 +131,13 @@ async def getratings2(session, user):
         return data
 
 def getIdMovie2(url):
-    response = requests.get(url, headers=headers)
-    response = response.text
-    soup = BeautifulSoup(response, 'html.parser')
+    scraper = cloudscraper.create_scraper()
+    try:
+        resp = scraper.get(url, timeout=10, headers=headers)
+    except Exception as e:
+        print(f'Error: {e}')
+        return None, None
+    soup = BeautifulSoup(resp.text, 'html.parser')
     tag_p = soup.find("p", class_="text-link text-footer")
     number = tag_p.find("a", attrs={'data-track-action': 'TMDB'}).get('href')
         
@@ -146,30 +148,34 @@ def getIdMovie2(url):
 
 
 async def getProfile(session, user):
-   
-    url = f'https://letterboxd.com/{user}'
-    async with session.get(url, headers=HTML_HEADERS) as response:
+    url = f"https://letterboxd.com/{user}/"
+
+    async with session.get(url, headers=headers) as response:
+        print("STATUS:", response.status)
 
         if response.status != 200:
-            return None, "Desconhecido"
+            return None
 
         html = await response.text()
-        
 
-        soup = BeautifulSoup(html, 'html.parser')
+     
 
-        
-        img = soup.find('meta', property="og:image").get('content')
-        nameSpan = soup.find('span', class_="displayname tooltip").get_text()
-        try:
-            patron = soup.find('span', class_="badge -patron").get_text()
-        except:
-            patron = None
-        return img, nameSpan, patron
+        soup = BeautifulSoup(html, "html.parser")
+
+        img_tag = soup.find("meta", property="og:image")
+        img = img_tag["content"] if img_tag else None
+
+        name_tag = soup.find("span", class_="displayname tooltip")
+        name = name_tag.get_text(strip=True) if name_tag else "Desconhecido"
+
+        patron_tag = soup.find("span", class_="badge -patron")
+        patron = patron_tag.get_text(strip=True) if patron_tag else None
+
+        return img, name, patron
 async def getPfp(session, user):
    
-    url = f'https://letterboxd.com/{user}'
-    async with session.get(url, headers=HTML_HEADERS) as response:
+    url = f'https://letterboxd.com/{user}/'
+    async with session.get(url, headers=headers) as response:
 
         if response.status != 200:
             return None, "Desconhecido"
@@ -184,14 +190,19 @@ async def getPfp(session, user):
         
         return img
 def getpic(user):
-    url = f"https://letterboxd.com/{user}"
-    response = requests.get(url, headers=headers)
+    scraper = cloudscraper.create_scraper()
+    url = f"https://letterboxd.com/{user}/"
+    try:
+        resp = scraper.get(url, timeout=10)
+    except Exception as e:
+        print(f"Error; {e}")
+        return None, None
 
-    html = response.text 
+    
    
         
 
-    soup = BeautifulSoup(html, 'html.parser')
+    soup = BeautifulSoup(resp.text, 'html.parser')
 
     span = soup.find('span', class_="avatar -a110 -large")
     img = span.find('img').get('src')
@@ -274,41 +285,48 @@ def getRandomList(link):
     })
     return all_data
 def getFavs(user):
-   
-    url = f'https://letterboxd.com/{user}'
-    response = requests.get(url, headers=headers)
+    url = f"https://letterboxd.com/{user}/"
+    scraper = cloudscraper.create_scraper()
+    response = scraper.get(url)
 
     if response.status_code != 200:
-        return 
+        return None
+
+    soup = BeautifulSoup(response.text, "html.parser")
     
-    soup = BeautifulSoup(response.text, 'html.parser')
-   
-    movies = soup.select('li.posteritem.favourite-production-poster-container')
-    
-    favs = []
-    targets = []
+    movies = soup.select("li.griditem .favourite-production-poster-container")
     all_data = []
-    
+
     for movie in movies:
-        target = movie.select_one('div.react-component').get('data-item-link')
-        fav = movie.select_one('img').get('alt')
-        favs.append(fav)
-        targets.append("https://letterboxd.com" + target)
-    for targett, filme in zip(targets, favs):
+        react = movie.select_one("div.react-component")
+
+        img = movie.select_one("img")
+
+        if not react or not img:
+            continue
+
+        target = react.get("data-item-link")
+        fav = img.get("alt")
+
+        if not target or not fav:
+            continue
+
         all_data.append({
-            'filme': filme,
-            'target': targett
-        })   
+            "filme": fav,
+            "target": "https://letterboxd.com" + target
+        })
     return all_data
+    
 def getLastFourWatched(user):
-    url = f'https://letterboxd.com/{user}' 
-    response = requests.get(url, headers=headers)
+    url = f'https://letterboxd.com/{user}/' 
+    scraper = cloudscraper.create_scraper()
+    response = scraper.get(url)
     
     if response.status_code != 200:
         return 
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    movies = soup.select('li.posteritem.viewing-poster-container')
+    movies = soup.select('li.griditem .viewing-poster-container')
     
     lastFourWatched = []
     targets = []
@@ -327,23 +345,22 @@ def getLastFourWatched(user):
         })
     return all_data
 
-async def getpagesreviews(user, session):
+def getpagesreviews(user):
+    session = requests.Session(impersonate="chrome120")
     url = f'https://letterboxd.com/{user}/films/reviews/'
-    async with session.get(url, headers=headers) as response:
-
-        if response.status != 200:
+    
+    try:
+        response = session.get(url, timeout=10, headers=headers)
+        if response.status_code != 200:
             return 1
         
-        html = await response.text()
-        soup = BeautifulSoup(html, 'html.parser') 
-
+        soup = BeautifulSoup(response.text, 'html.parser') 
         pages = soup.find_all('li', class_="paginate-page")
         if not pages:
             return 1
-        try:
-            return int(pages[-1].get_text())
-        except:
-            return 1 
+        return int(pages[-1].get_text(strip=True))
+    except:
+        return 1 
 
         
 async def getDirector(url, session):
@@ -359,32 +376,40 @@ async def getDirector(url, session):
         return director
 
 
-async def randomreview(user, session):
-    number = await getpagesreviews(user, session)
+def randomreview(user):
+    number = getpagesreviews(user)
+    if not number:
+        number = 1
+    
     page = random.randint(1, number)
+    scraper = cloudscraper.create_scraper()
+    
+    print(f"Total de páginas: {number}, sorteada: {page}")
+    
     url = f"https://letterboxd.com/{user}/films/reviews/page/{page}/"
-    async with session.get(url, headers=headers) as response:
+    
+   
+    response = scraper.get(url)
+    if response.status_code != 200:
+        return 
         
+    soup = BeautifulSoup(response.text, 'html.parser') 
         
-
-        if response.status!= 200:
-            return 
+    
+    reviews = soup.select("article.production-viewing")
+    if not reviews:
+        print("Nenhuma review encontrada (provável Cloudflare)")
+        return
         
-        html = await response.text()
-        soup = BeautifulSoup(html, 'html.parser') 
-        reviews = soup.find_all('div', class_="listitem js-listitem")
-        if not reviews:
-            return 
-        chosen = random.choice(reviews)
-        review = chosen.find('div', class_='body-text -prose -reset js-review-body js-collapsible-text').get_text()        
-        movie_link = "https://letterboxd.com" + chosen.find('h2', class_="name -primary prettify").find('a').get('href')
-        movie_name = chosen.find('h2', class_="name -primary prettify").find('a').get_text()
-        date = chosen.find('span', class_='releasedate').find('a').get_text()
-        rating = chosen.find('span', class_='content-reactions-strip -viewing').find('span').get_text()
-        dateLog = chosen.find('span', class_='date').find('time').get_text()
-        target = chosen.find('div', class_="react-component figure").get('data-target-link')
-        
-        return review[1:], movie_link, movie_name, date, rating, dateLog, target
+    chosen = random.choice(reviews)
+    movie_name = chosen.select_one('h2.primaryname.prettify').get_text()
+    release_date = chosen.select_one('span.releasedate').get_text()
+    link = chosen.select_one('h2.primaryname.prettify').get('href')
+    review = chosen.select_one('div.body-text.-prose.-reset.js-review-body.js-collapsible-text').get_text().strip()
+    target = "https://letterboxd.com" + chosen.select_one('div.react-component.figure').get('data-target-link')
+    logDate = chosen.select_one('time.timestamp').get_text()
+    rating = chosen.select_one('svg').get('aria-label')
+    return review, link, movie_name, release_date, rating, logDate, target
 async def getRatings(session, nick):
     url = f"https://letterboxd.com/{nick}/"
     async with session.get(url, headers=headers) as response:

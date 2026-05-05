@@ -1,18 +1,144 @@
 import discord
-from api.tmdbAPI import fetch_data
+from discord.ui import View, Select
 from scraping.letterboxd import getDiary
-import re
-import asyncio
 import aiohttp
 import discord
-import datetime
-from scraping.letterboxd import getRatings, getPfp, getDiary, getYears
+from scraping.letterboxd import  getDiary
 import logging
 import random
 from io import BytesIO
+from utils.db import DBSimulateTable
 from PIL import Image
 logger = logging.getLogger(__name__)
+class SimulateTable(discord.ui.View):
+    def __init__(self, teams, user, simulation_id: int):
+        super().__init__(timeout=None)
+        self.teams = teams
+        self.selected = []
+        self.user = user
+        self.simulation_id = simulation_id
+        if len(self.selected) < 20:
+            self.add_item(TimeSelect(self))
+        self.add_item(ResetSimulationButton())
+class ResetSimulationButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="Resetar", style=discord.ButtonStyle.danger)
+    async def callback(self, interaction: discord.Interaction):
+        view: SimulateTable = self.view
+        if interaction.user.id != view.user.id:
+            await interaction.response.send_message(
+                "❌ Essa simulação não é sua.",
+                ephemeral=True
+            )
+            return
+        DBSimulateTable.deleteSimuletion(view.simulation_id)
+        view.selected.clear()
+        view.clear_items()
+        view.add_item(TimeSelect(view))
+        view.add_item(ResetSimulationButton())
+        embed = discord.Embed(
+            title="Tabela do Brasileirão",
+            description=" **Simulação resetada**\nEscolha o primeiro time novamente.",
+            color=discord.Color.red()
+        )
+        embed.set_footer(
+            icon_url=view.user.display_avatar.url,
+            text=view.user.display_name
+        )
 
+        await interaction.response.edit_message(
+            embed=embed,
+            view=view
+        )
+class TimeSelect(discord.ui.Select):
+    def __init__(self, view: SimulateTable):
+        options = [
+            discord.SelectOption(
+                label=team,
+                value=team
+            )
+            for team in view.teams
+            if team not in view.selected
+        ]
+        if not options:
+            self.disabled = True
+        super().__init__(
+            placeholder="Escolha um time",
+            min_values=1,
+            max_values=1,
+            options=options
+        )
+        self.view_ref = view
+    async def callback(self, interaction: discord.Interaction):
+        if len(self.view_ref.selected) >= 20:
+            await interaction.response.send_message(
+                "❌ Simulação já finalizada.",
+                ephemeral=True
+            )
+            return
+        if interaction.user.id != self.view_ref.user.id:
+            await interaction.response.send_message(
+                "❌ Essa simulação não é sua.",
+                ephemeral=True
+            )
+            return
+        
+        team = self.values[0]
+        self.view_ref.selected.append(team)
+        position = len(self.view_ref.selected)
+        DBSimulateTable.savePosition(
+            simulation_id=self.view_ref.simulation_id,
+            position=position,
+            team=team
+        )
+        def zona(i):
+            if 1 <= i <= 4:
+                return "🔵"
+            elif i == 5:
+                return "🟠"
+            elif 6 <= i <= 11:
+                return "🟢"
+            elif 12 <= i <= 16:
+                return "⚪"
+            else:
+                return "🔴"
+            
+        tabela = "\n".join(
+            f"**``{zona(i)} {i}º {t} ``**"
+            for i, t in enumerate(self.view_ref.selected, start=1)
+        )
+        embed = discord.Embed(
+            title="Tabela do Brasileirão",
+            description="**:blue_circle: CONMEBOL Libertadores**",
+            color=discord.Color.blue()
+        )
+        embed.set_thumbnail(url="https://upload.wikimedia.org/wikipedia/pt/thumb/7/75/Campeonato_Brasileiro_de_Futebol_de_2024_-_S%C3%A9rie_A.png/250px-Campeonato_Brasileiro_de_Futebol_de_2024_-_S%C3%A9rie_A.png")
+        embed.add_field(name="Classificação: ", value=tabela, inline=False)
+        embed.set_footer(icon_url=self.view.user.avatar.url, text=self.view.user.display_name)
+        self.view_ref.clear_items()
+        self.view_ref.add_item(ResetSimulationButton())
+        if len(self.view_ref.selected)  == 5:
+            embed.color=discord.Color.orange()
+            embed.description="**:orange_circle: PRÉ-LIBERTADORES**"
+        elif len(self.view_ref.selected) > 5 and len(self.view_ref.selected)< 12:
+            embed.color=discord.Color.green()
+            embed.description="**:green_circle: CONMEBOL Sudamericana**"
+        elif len(self.view_ref.selected) > 16:
+            embed.color=discord.Color.red()
+            embed.description="**:red_circle: REBAIXAMENTO**"
+        elif len(self.view_ref.selected) > 11 and len(self.view_ref.selected)< 17:
+            embed.color= discord.Color.dark_grey()
+            embed.description="**:white_circle: Nada **"
+        if len(self.view_ref.selected) < 20:
+            self.view_ref.add_item(TimeSelect(self.view_ref))
+            
+        await interaction.response.edit_message(
+            embed=embed,
+            view=self.view_ref
+        )
+
+
+        
 class TransfersViews(discord.ui.View):
     def __init__(self, transferencias,escudo):
         super().__init__(timeout=None)

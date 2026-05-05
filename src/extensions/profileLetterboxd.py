@@ -182,7 +182,7 @@ class LetterboxdPillow(commands.Cog):
 
 
 async def handle_movie(session, letterboxd_link):
-    id, media_type = await getIdMovie(session, letterboxd_link)
+    id, media_type = await getIdMovie(letterboxd_link)
     if not id:
         return None 
     
@@ -197,23 +197,21 @@ async def handle_movie(session, letterboxd_link):
         img_data = await resp.read()
         return Image.open(BytesIO(img_data)).convert('RGBA')
 async def handle_movie_backdrop(session, letterboxd_link):
-    id, media_type = await getIdMovie(session, letterboxd_link)
-    
-    if not id:
+    movie_id, media_type = await getIdMovie(letterboxd_link)
+    if not movie_id:
         return None
-    
-    _, backdrop_path = await fetch_data(session, id, media_type)
-    
-    if not backdrop_path:
+
+    _, backdrop = await fetch_data(session, movie_id, media_type)
+    if not backdrop:
         return None
-    
-    url_backdrop = f"https://image.tmdb.org/t/p/w1280{backdrop_path}"
-    async with session.get(url_backdrop) as resp:
-        if resp.status != 200:
-            
+
+    async with session.get(
+        f"https://image.tmdb.org/t/p/w1280{backdrop}",
+        timeout=aiohttp.ClientTimeout(total=10)
+    ) as r:
+        if r.status != 200:
             return None
-        img_data = await resp.read()
-        return Image.open(BytesIO(img_data)).convert('RGBA')
+        return Image.open(BytesIO(await r.read())).convert("RGBA")
 
 
 async def setup(bot):

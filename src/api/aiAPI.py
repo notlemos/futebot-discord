@@ -1,8 +1,26 @@
 import os 
 from groq import Groq 
+import google.genai as genai
 client = Groq(
         api_key=(os.getenv("apiGroqKey"))
 )
+client_gemini = genai.Client(api_key=os.getenv("apiGemini"))
+async def geminiResume(msg):
+        prompt = (
+                "Aja como um assistente especialista em análise cinematográfica. "
+                "Abaixo, fornecerei um trecho da transcrição de um filme (extraído de legendas). "
+                "Sua tarefa é: 1. Criar um resumo conciso (em português) do que aconteceu nesse período; "
+                "2. Identificar personagens interagindo; 3. Destacar o tom da cena. "
+                "Importante: Ignore erros de transcrição e FOQUE NA NARRATIVA. "
+                "RESPONDA TUDO EM UM ÚNICO PARÁGRAFO CURTO, SEM QUEBRAS DE LINHA. "
+                f"Trecho: {msg}"
+        )
+        
+        response = await client_gemini.aio.models.generate_content(
+                model="gemini-3-flash-preview",
+                contents=prompt
+        )
+        return response.text
 def groqFut(msg):
         chat_completation = client.chat.completions.create(
                 messages=[
@@ -19,6 +37,35 @@ def groqFut(msg):
                 model="llama-3.3-70b-versatile",  
         )
         return chat_completation.choices[0].message.content
+def groqMovie(msg):
+    if not msg:
+        return "Não há texto suficiente para resumir."
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "Sua tarefa é  resumir o filme com base no trecho da legenda. Apenas os acontecimentos RELEVANTES. "
+                    "Colocando os acontecimentos em varios tópicos começando com ""-"" "
+                    "o trecho da legenda fornecido com o MÁXIMO de detalhes possível.\n\n"
+                    "OBJETIVO: Escrever um texto rico e extenso que se aproxime dos 500 caracteres.\n"
+                    "CONTEÚDO: Descreva as ações, os diálogos cruciais\n"
+                    "TRAVA: NUNCA NUNCA MAS NUNCA ultrapasse 500 caracteres sob nenhuma circunstância."
+                    "ESTILO: TUDO EM TÓPICOS COMEÇANDO COM ""-"""
+                )
+            },
+            {
+                "role": "user",
+                "content": f"Faça um resume deste trecho: {msg}"
+            }, 
+        ],
+        model="llama-3.3-70b-versatile",
+        temperature=0.6,
+        
+    )
+    print(chat_completion.choices[0].message.content)
+    return chat_completion.choices[0].message.content
 def groqPop(msg):
         chat_completation = client.chat.completions.create(
                 messages=[

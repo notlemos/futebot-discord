@@ -32,7 +32,7 @@ class GuessTheReviewCog(commands.Cog):
                 return
         
         async with aiohttp.ClientSession() as session:
-                review, link, nome, releaseDate, rating, logDate, target = await randomreview(savedUser, session)
+                review, link, nome, releaseDate, rating, logDate, target =  randomreview(savedUser)
                 nome_limpo = re.sub(r'[^\w]', '', nome).lower().strip()
                 
                 

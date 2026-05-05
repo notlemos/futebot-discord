@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from utils.db import DBFute
+
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"
 }
@@ -78,43 +78,7 @@ def getRodada():
             rodada_num += 1
             id_jogo = 1
     return matches
-def getTabela_user():
-    url = 'https://www.terra.com.br/esportes/futebol/brasileiro-serie-a/tabela/'
 
-    response = requests.get(url, headers=headers)
-
-    if response.status_code != 200:
-        return None
-    all_data = []
-    soup = BeautifulSoup(response.text, 'html.parser')
-    names = soup.select('td.main.team-name')
-    posicoes = soup.select('td.main.position')
-    pontos = soup.select('t')
-    
-
-    times = []
-    pontos = []
-    siglas = []
-    for name in names:
-        nome = name.select_one('a')['title']
-        times.append(nome)
-    for posicao in posicoes:
-        a = posicao.text 
-        
-    for ponto in soup.select('td.points'):
-        txt = ponto.text
-        pontos.append(int(txt))
-    
-    
-    
-    for time in range(20):
-        all_data.append({
-            'Time': times[time],
-            'Sigla': DBFute().getAcronym(times[time]),
-            'Pontos': pontos[time],
-            'Posicao': time
-        })
-    return all_data
 
 
 

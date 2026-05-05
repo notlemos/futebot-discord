@@ -2,12 +2,29 @@ import discord
 from discord.ext import commands 
 import requests 
 from api.woah import baixar_woah
-
+import random
 class RandomsCogs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    
+    @commands.command(name="naruto")
+    async def naruto(self, ctx):
+        url = "https://dattebayo-api.onrender.com/characters/"
+        response = requests.get(url).json()
+        characters = response['characters']
+        
+        choice = random.choice(characters)
+        
+        img = '/tmp/naruto.png'
+        link = choice['images'][0]
+        
+        with requests.get(link, stream=True) as r:
+            r.raise_for_status()
+            with open(img, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=200):
+                    if chunk: 
+                        f.write(chunk)
+        await ctx.send(file=discord.File(img))        
     @commands.command(name="gato")
     async def gato(self, ctx):
             

@@ -39,10 +39,10 @@ class randomMovieCog(commands.Cog):
 
         
         movie = getWatchList(savedUser)
-        
-        name = movie[0]['name']
-        target = movie[0]['target']
-        link = f"https://letterboxd.com{target}"
+        print(movie)
+        name = movie['name']
+        target = movie['link']
+        link = target
         id_movie, filter = getIdMovie2(link)
         poster = fetchdata(id_movie, filter)
         avatar, _ = getpic(savedUser)
@@ -87,7 +87,7 @@ class randomMovieCog(commands.Cog):
             id_tmdb = movie[3]
             
 
-            poster = fetchdata(id_tmdb)
+            poster = fetchdata(id_tmdb, 'movie')
             embed  = discord.Embed(
                 title=f"**{position} - {name}**",
                 url=link,

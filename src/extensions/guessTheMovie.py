@@ -27,7 +27,7 @@ class GuessTheMovieCog(commands.Cog):
                 await ctx.send("Use o comando uma vez com seu user para salvar.")
                 return
         async with aiohttp.ClientSession() as session:
-            data = await getFilmsList(savedUser, session)
+            data = await getFilmsList(savedUser)
             nome_limpo = re.sub(r'[^\w]', '', data[0]['name']).lower().strip()
             link = "https://letterboxd.com" + data[0]['target']
             diretor = await getDirector(link, session)
